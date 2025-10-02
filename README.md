@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MarocUp Next.js Website
 
-## Getting Started
+Site web officiel de MarocUp - Inspirer, Connecter, Innover
 
-First, run the development server:
+## Installation
 
+1. Installer les dépendances :
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configurer les variables d'environnement :
+Créer un fichier `.env.local` avec :
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Lancer le serveur de développement :
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure du projet
 
-## Learn More
+- `/src/app/` - Pages Next.js (App Router)
+- `/src/components/` - Composants réutilisables
+- `/src/hooks/` - Hooks personnalisés
+- `/src/lib/` - Utilitaires et configurations
+- `/public/images/` - Images et assets
 
-To learn more about Next.js, take a look at the following resources:
+## Fonctionnalités
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- ✅ Navigation responsive avec menu mobile
+- ✅ Système de traduction FR/EN
+- ✅ Pages : Accueil, À propos, Programme, Candidature, Mentors, Infos pratiques
+- ✅ Formulaire de candidature avec upload de fichiers
+- ✅ Design responsive identique au site original
+- ✅ Intégration Supabase pour les candidatures
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technologies utilisées
 
-## Deploy on Vercel
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase
+- Font Awesome
+- Inter Font
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Migration depuis HTML
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ce projet est une migration complète du site HTML original vers Next.js, en conservant :
+- Tous les textes et traductions
+- Le design et les couleurs exactes
+- Les images et assets
+- Les liens LinkedIn
+- Les fonctionnalités JavaScript
+- La structure responsive
