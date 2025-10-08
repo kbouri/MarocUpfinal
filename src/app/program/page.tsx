@@ -61,7 +61,7 @@ export default function ProgramPage() {
                 </div>
                 
                 <div className="timeline-event">
-                  <div className="event-time">17:00 - 21:00</div>
+                  <div className="event-time">17:30 - 21:00</div>
                   <div className="event-content">
                     <h3>{t('program-event4-title')}</h3>
                     <p>{t('program-event4-desc')}</p>
