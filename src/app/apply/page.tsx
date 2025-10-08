@@ -44,18 +44,6 @@ export default function ApplyPage() {
     setFormData(prev => ({ ...prev, [fieldName]: file }));
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64 = reader.result?.toString().split(',')[1] || '';
-        resolve(base64);
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -79,46 +67,79 @@ export default function ApplyPage() {
         throw new Error('Le pitch deck est obligatoire');
       }
 
-      // Validate file
+      // Validate pitch deck file
       if (formData.pitchDeck.size > 10 * 1024 * 1024) {
-        throw new Error('Le fichier ne doit pas dépasser 10MB');
+        throw new Error('Le pitch deck ne doit pas dépasser 10MB');
       }
 
       if (formData.pitchDeck.type !== 'application/pdf') {
-        throw new Error('Le fichier doit être un PDF');
+        throw new Error('Le pitch deck doit être un PDF');
       }
-
-      // Convert file to base64
-      const pitchDeckData = await fileToBase64(formData.pitchDeck);
 
       // Validate "other" sector field if selected
       if (formData.sector === 'other' && !formData.otherSector.trim()) {
         throw new Error('Veuillez préciser votre secteur d\'activité');
       }
 
-      // Validate and convert business plan if provided
-      let businessPlanData = null;
-      let businessPlanFilename = null;
-      let businessPlanMimeType = null;
-      
+      // Validate business plan if provided
       if (formData.businessPlan) {
         if (formData.businessPlan.size > 10 * 1024 * 1024) {
           throw new Error('Le Business Plan ne doit pas dépasser 10MB');
         }
-        // Accept PDF, Excel, Word documents
-        const allowedTypes = [
-          'application/pdf',
-          'application/vnd.ms-excel',
-          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/msword',
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ];
-        if (!allowedTypes.includes(formData.businessPlan.type)) {
-          throw new Error('Le Business Plan doit être un PDF, Excel ou Word');
+      }
+
+      // Generate unique filename for pitch deck
+      const timestamp = Date.now();
+      const sanitizedStartupName = formData.startupName.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const pitchDeckPath = `pitch-decks/${sanitizedStartupName}_${timestamp}.pdf`;
+
+      // Upload pitch deck to Supabase Storage
+      const { data: pitchDeckUpload, error: pitchDeckError } = await supabase.storage
+        .from('candidatures-files')
+        .upload(pitchDeckPath, formData.pitchDeck, {
+          contentType: formData.pitchDeck.type,
+          upsert: false
+        });
+
+      if (pitchDeckError) {
+        throw new Error(`Erreur d'upload du pitch deck: ${pitchDeckError.message}`);
+      }
+
+      // Get public URL for pitch deck
+      const { data: pitchDeckUrlData } = supabase.storage
+        .from('candidatures-files')
+        .getPublicUrl(pitchDeckPath);
+
+      let businessPlanUrl = null;
+
+      // Upload business plan if provided
+      if (formData.businessPlan) {
+        const businessPlanExt = formData.businessPlan.name.split('.').pop();
+        const businessPlanPath = `business-plans/${sanitizedStartupName}_${timestamp}.${businessPlanExt}`;
+
+        const { data: businessPlanUpload, error: businessPlanError } = await supabase.storage
+          .from('candidatures-files')
+          .upload(businessPlanPath, formData.businessPlan, {
+            contentType: formData.businessPlan.type,
+            upsert: false
+          });
+
+        if (businessPlanError) {
+          throw new Error(`Erreur d'upload du business plan: ${businessPlanError.message}`);
         }
-        businessPlanData = await fileToBase64(formData.businessPlan);
-        businessPlanFilename = formData.businessPlan.name;
-        businessPlanMimeType = formData.businessPlan.type;
+
+        // Get public URL for business plan
+        const { data: businessPlanUrlData } = supabase.storage
+          .from('candidatures-files')
+          .getPublicUrl(businessPlanPath);
+
+        businessPlanUrl = businessPlanUrlData.publicUrl;
+      }
+
+      // Add business plan info to additional info if provided
+      let additionalInfoText = formData.additionalInfo.trim();
+      if (businessPlanUrl) {
+        additionalInfoText += `\n\n[Business Plan URL: ${businessPlanUrl}]`;
       }
 
       // Prepare data for Supabase
@@ -131,13 +152,8 @@ export default function ApplyPage() {
         pays_residence: formData.country,
         lien_prototype: formData.prototypeLink.trim() || null,
         lien_video: formData.videoLink.trim() || null,
-        informations_complementaires: formData.additionalInfo.trim() || null,
-        pitch_deck_data: pitchDeckData,
-        pitch_deck_filename: formData.pitchDeck.name,
-        pitch_deck_mime_type: formData.pitchDeck.type,
-        business_plan_data: businessPlanData,
-        business_plan_filename: businessPlanFilename,
-        business_plan_mime_type: businessPlanMimeType,
+        informations_complementaires: additionalInfoText || null,
+        pitch_deck_url: pitchDeckUrlData.publicUrl,
       };
 
       // Submit to Supabase
