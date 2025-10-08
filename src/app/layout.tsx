@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 import './globals.css';
+import { TranslationProvider } from '@/contexts/TranslationContext';
 
-const inter = Inter({ subsets: ['latin'] });
+const poppins = Poppins({ 
+  weight: ['300', '400', '500', '600', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'MarocUp - Inspirer, Connecter, Innover | 19-20 Décembre 2025, Rabat',
@@ -20,8 +25,10 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
       </head>
-      <body className={inter.className}>
-        {children}
+      <body className={poppins.className}>
+        <TranslationProvider>
+          {children}
+        </TranslationProvider>
       </body>
     </html>
   );

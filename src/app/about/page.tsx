@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
@@ -77,8 +77,30 @@ export default function AboutPage() {
                   </div>
                 </div>
                 
-                {/* Bottom Row: Paul and Othmane */}
+                {/* Bottom Row: Yasmine and Paul */}
                 <div className="team-member" style={{ gridColumn: 1, gridRow: 2 }}>
+                  <div className="member-photo">
+                    <Image
+                      src="/images/team/Yasmine Bouri.jpg"
+                      alt="Yasmine Bouri"
+                      width={100}
+                      height={100}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                  <div className="member-info">
+                    <h4>Yasmine Bouri</h4>
+                    <div className="member-schools">
+                      <p className="member-school">Ex Imperial College</p>
+                      <p className="member-school">& Next Jeel Founder</p>
+                    </div>
+                    <a href="https://www.linkedin.com/in/yasmine-bouri/" target="_blank" className="member-linkedin">
+                      <i className="fab fa-linkedin"></i>
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="team-member" style={{ gridColumn: 2, gridRow: 2 }}>
                   <div className="member-photo">
                     <Image
                       src="/images/team/paul-mathieu-foata.jpg"
@@ -92,25 +114,6 @@ export default function AboutPage() {
                     <h4>Paul Mathieu<br/>FOATA</h4>
                     <p className="member-school">ESSEC Business</p>
                     <a href="https://www.linkedin.com/in/paul-mathieu-foata-26a884280/" target="_blank" className="member-linkedin">
-                      <i className="fab fa-linkedin"></i>
-                    </a>
-                  </div>
-                </div>
-                
-                <div className="team-member" style={{ gridColumn: 2, gridRow: 2 }}>
-                  <div className="member-photo">
-                    <Image
-                      src="/images/team/othmane-bennis.jpg"
-                      alt="Othmane Bennis"
-                      width={100}
-                      height={100}
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
-                  <div className="member-info">
-                    <h4>Othmane Bennis</h4>
-                    <p className="member-school">EMLYON Business</p>
-                    <a href="https://www.linkedin.com/in/othmane-bennis-459316251/" target="_blank" className="member-linkedin">
                       <i className="fab fa-linkedin"></i>
                     </a>
                   </div>
@@ -179,7 +182,7 @@ export default function AboutPage() {
               <div className="impact-label">{t('about-startups')}</div>
             </div>
             <div className="impact-item">
-              <div className="impact-number">+20</div>
+              <div className="impact-number">+10</div>
               <div className="impact-label">{t('about-mentors')}</div>
             </div>
             <div className="impact-item">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from '@/contexts/TranslationContext';
 
 export default function Footer() {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
@@ -15,8 +15,10 @@ export default function ApplyPage() {
     email: '',
     pitchDescription: '',
     sector: '',
+    otherSector: '',
     prototypeLink: '',
     pitchDeck: null as File | null,
+    businessPlan: null as File | null,
     videoLink: '',
     country: '',
     additionalInfo: '',
@@ -38,7 +40,8 @@ export default function ApplyPage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setFormData(prev => ({ ...prev, pitchDeck: file }));
+    const fieldName = e.target.name as 'pitchDeck' | 'businessPlan';
+    setFormData(prev => ({ ...prev, [fieldName]: file }));
   };
 
   const fileToBase64 = (file: File): Promise<string> => {
@@ -88,13 +91,43 @@ export default function ApplyPage() {
       // Convert file to base64
       const pitchDeckData = await fileToBase64(formData.pitchDeck);
 
+      // Validate "other" sector field if selected
+      if (formData.sector === 'other' && !formData.otherSector.trim()) {
+        throw new Error('Veuillez préciser votre secteur d\'activité');
+      }
+
+      // Validate and convert business plan if provided
+      let businessPlanData = null;
+      let businessPlanFilename = null;
+      let businessPlanMimeType = null;
+      
+      if (formData.businessPlan) {
+        if (formData.businessPlan.size > 10 * 1024 * 1024) {
+          throw new Error('Le Business Plan ne doit pas dépasser 10MB');
+        }
+        // Accept PDF, Excel, Word documents
+        const allowedTypes = [
+          'application/pdf',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        if (!allowedTypes.includes(formData.businessPlan.type)) {
+          throw new Error('Le Business Plan doit être un PDF, Excel ou Word');
+        }
+        businessPlanData = await fileToBase64(formData.businessPlan);
+        businessPlanFilename = formData.businessPlan.name;
+        businessPlanMimeType = formData.businessPlan.type;
+      }
+
       // Prepare data for Supabase
       const applicationData = {
         nom_startup: formData.startupName.trim(),
         nom_fondateurs: formData.founders.trim(),
         email: formData.email.trim(),
         pitch_court: formData.pitchDescription.trim(),
-        secteur: formData.sector,
+        secteur: formData.sector === 'other' ? formData.otherSector.trim() : formData.sector,
         pays_residence: formData.country,
         lien_prototype: formData.prototypeLink.trim() || null,
         lien_video: formData.videoLink.trim() || null,
@@ -102,6 +135,9 @@ export default function ApplyPage() {
         pitch_deck_data: pitchDeckData,
         pitch_deck_filename: formData.pitchDeck.name,
         pitch_deck_mime_type: formData.pitchDeck.type,
+        business_plan_data: businessPlanData,
+        business_plan_filename: businessPlanFilename,
+        business_plan_mime_type: businessPlanMimeType,
       };
 
       // Submit to Supabase
@@ -121,8 +157,10 @@ export default function ApplyPage() {
         email: '',
         pitchDescription: '',
         sector: '',
+        otherSector: '',
         prototypeLink: '',
         pitchDeck: null,
+        businessPlan: null,
         videoLink: '',
         country: '',
         additionalInfo: '',
@@ -154,11 +192,8 @@ export default function ApplyPage() {
       <section className="call-section">
         <div className="container">
           <div className="call-box">
-            <div className="call-icon">
-              <i className="fas fa-bullhorn"></i>
-            </div>
             <div className="call-content">
-              <h2>{t('apply-call-title')}</h2>
+              <h2 dangerouslySetInnerHTML={{ __html: t('apply-call-title') }}></h2>
               <p className="deadline" dangerouslySetInnerHTML={{ __html: t('apply-deadline') }}></p>
               <p>{t('apply-call-desc')}</p>
             </div>
@@ -301,6 +336,21 @@ export default function ApplyPage() {
               </select>
             </div>
 
+            {formData.sector === 'other' && (
+              <div className="form-group">
+                <label htmlFor="otherSector">{t('apply-field-other-sector')}</label>
+                <input
+                  type="text"
+                  id="otherSector"
+                  name="otherSector"
+                  value={formData.otherSector}
+                  onChange={handleInputChange}
+                  placeholder={t('apply-placeholder-other-sector')}
+                  required
+                />
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="prototypeLink">{t('apply-field-prototype')}</label>
               <input
@@ -327,6 +377,23 @@ export default function ApplyPage() {
                 <label htmlFor="pitchDeck" className="file-label">
                   <i className="fas fa-upload"></i>
                   <span>{formData.pitchDeck ? formData.pitchDeck.name : t('apply-file-choose')}</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="businessPlan">{t('apply-field-businessplan')}</label>
+              <div className="file-upload">
+                <input
+                  type="file"
+                  id="businessPlan"
+                  name="businessPlan"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="businessPlan" className="file-label">
+                  <i className="fas fa-upload"></i>
+                  <span>{formData.businessPlan ? formData.businessPlan.name : t('apply-file-choose')}</span>
                 </label>
               </div>
             </div>
