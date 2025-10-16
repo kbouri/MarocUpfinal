@@ -124,6 +124,32 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Partners Logos Section */}
+      <section className="partners-logos-section">
+        <div className="container">
+          <div className="partners-logos">
+            <div className="partner-logo">
+              <Image
+                src="/images/next-jeel-logo.svg"
+                alt="Next Jeel"
+                width={200}
+                height={60}
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
+            <div className="partner-logo">
+              <Image
+                src="/images/tech-bridge-africa-logo.svg"
+                alt="Tech Bridge Africa"
+                width={120}
+                height={120}
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Values Section */}
       <section className="values-section">
         <div className="container">
