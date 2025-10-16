@@ -139,9 +139,11 @@ export default function MentorsPage() {
             {filteredMentors.map((mentor) => (
               <div key={mentor.id} className="mentor-card" data-expertise={mentor.tags.join(',')}>
                 <div className="mentor-image">
-                  <div className="image-placeholder">
-                    <i className="fas fa-user"></i>
-                  </div>
+                  <img 
+                    src="/images/question-mark.svg" 
+                    alt="Annonce imminente" 
+                    className="mentor-avatar"
+                  />
                 </div>
                 <div className="mentor-info">
                   <h3>{mentor.name}</h3>
@@ -171,9 +173,11 @@ export default function MentorsPage() {
             {filteredJury.map((member) => (
               <div key={member.id} className="jury-card" data-expertise={member.tags.join(',')}>
                 <div className="jury-image">
-                  <div className="image-placeholder">
-                    <i className="fas fa-user"></i>
-                  </div>
+                  <img 
+                    src="/images/question-mark.svg" 
+                    alt="Annonce imminente" 
+                    className="jury-avatar"
+                  />
                 </div>
                 <div className="jury-info">
                   <h3>{member.name}</h3>
