@@ -53,6 +53,41 @@ export default function MentorsPage() {
       expertise: t('mentor6-expertise'),
       tags: ['tech', 'product'],
     },
+    {
+      id: 7,
+      name: t('mentor7-name'),
+      role: t('mentor7-role'),
+      expertise: t('mentor7-expertise'),
+      tags: ['agritech', 'tech'],
+    },
+    {
+      id: 8,
+      name: t('mentor8-name'),
+      role: t('mentor8-role'),
+      expertise: t('mentor8-expertise'),
+      tags: ['marketplace', 'business'],
+    },
+    {
+      id: 9,
+      name: t('mentor9-name'),
+      role: t('mentor9-role'),
+      expertise: t('mentor9-expertise'),
+      tags: ['ai', 'tech'],
+    },
+    {
+      id: 10,
+      name: t('mentor10-name'),
+      role: t('mentor10-role'),
+      expertise: t('mentor10-expertise'),
+      tags: ['marketing', 'business'],
+    },
+    {
+      id: 11,
+      name: t('mentor11-name'),
+      role: t('mentor11-role'),
+      expertise: t('mentor11-expertise'),
+      tags: ['fintech', 'business'],
+    },
   ];
 
   const jury = [
@@ -87,6 +122,10 @@ export default function MentorsPage() {
     { key: 'finance', label: t('mentors-filter-finance') },
     { key: 'marketing', label: t('mentors-filter-marketing') },
     { key: 'legal', label: t('mentors-filter-legal') },
+    { key: 'agritech', label: t('mentors-filter-agritech') },
+    { key: 'marketplace', label: t('mentors-filter-marketplace') },
+    { key: 'ai', label: t('mentors-filter-ai') },
+    { key: 'fintech', label: t('mentors-filter-fintech') },
   ];
 
   const filteredMentors = mentors.filter(mentor => 
