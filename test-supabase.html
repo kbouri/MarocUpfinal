@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Storage</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; margin-top: 0; }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px 5px 10px 0;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        input[type="file"] {
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Configuration Supabase Storage</h1>
+        <p>Cet outil va vous aider à diagnostiquer le problème avec votre bucket Supabase.</p>
+
+        <div class="step">
+            <h3>📝 Étape 1 : Configuration</h3>
+            <div class="input-group">
+                <label for="supabaseUrl">Supabase URL :</label>
+                <input type="text" id="supabaseUrl" placeholder="https://xxxxx.supabase.co">
+            </div>
+            <div class="input-group">
+                <label for="supabaseKey">Supabase Anon Key :</label>
+                <textarea id="supabaseKey" rows="3" placeholder="Votre clé anonyme (commence par eyJ...)"></textarea>
+            </div>
+            <button onclick="testConnection()">1️⃣ Tester la Connexion</button>
+        </div>
+
+        <div class="step">
+            <h3>🗂️ Étape 2 : Vérification du Bucket</h3>
+            <button onclick="listBuckets()">2️⃣ Lister tous les Buckets</button>
+            <button onclick="checkBucket()">3️⃣ Vérifier 'candidatures-files'</button>
+        </div>
+
+        <div class="step">
+            <h3>📤 Étape 3 : Test d'Upload</h3>
+            <div class="input-group">
+                <label for="testFile">Fichier de test (PDF) :</label>
+                <input type="file" id="testFile" accept=".pdf">
+            </div>
+            <button onclick="testUpload()">4️⃣ Tester l'Upload</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let supabase = null;
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+
+        function initSupabase() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+
+            if (!url || !key) {
+                showResult('❌ Erreur: Veuillez renseigner l\'URL et la clé Supabase', 'error');
+                return false;
+            }
+
+            if (!url.includes('supabase.co')) {
+                showResult('❌ Erreur: L\'URL Supabase semble invalide', 'error');
+                return false;
+            }
+
+            if (!key.startsWith('eyJ')) {
+                showResult('❌ Erreur: La clé Anon Key semble invalide (doit commencer par eyJ)', 'error');
+                return false;
+            }
+
+            try {
+                supabase = window.supabase.createClient(url, key);
+                return true;
+            } catch (error) {
+                showResult('❌ Erreur lors de l\'initialisation: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function testConnection() {
+            if (!initSupabase()) return;
+
+            showResult('🔄 Test de connexion en cours...', 'info');
+
+            try {
+                // Test simple : lister les buckets
+                const { data, error } = await supabase.storage.listBuckets();
+
+                if (error) {
+                    showResult(`❌ Erreur de connexion:\n\n${error.message}\n\nVérifiez que :\n- L'URL est correcte\n- La clé Anon Key est correcte\n- Votre projet Supabase est actif`, 'error');
+                    return;
+                }
+
+                showResult(`✅ Connexion réussie !\n\nBuckets trouvés: ${data.length}\n${data.map(b => `- ${b.name} ${b.public ? '[Public]' : '[Privé]'}`).join('\n')}`, 'success');
+            } catch (error) {
+                showResult(`❌ Erreur réseau:\n\n${error.message}\n\nVérifiez votre connexion internet`, 'error');
+            }
+        }
+
+        async function listBuckets() {
+            if (!supabase && !initSupabase()) return;
+
+            showResult('🔄 Récupération de la liste des buckets...', 'info');
+
+            try {
+                const { data, error } = await supabase.storage.listBuckets();
+
+                if (error) {
+                    showResult(`❌ Erreur:\n\n${error.message}`, 'error');
+                    return;
+                }
+
+                if (data.length === 0) {
+                    showResult('⚠️ Aucun bucket trouvé !\n\nVous devez créer le bucket "candidatures-files" dans votre Dashboard Supabase:\n\n1. Allez dans Storage\n2. Cliquez sur "New bucket"\n3. Nom: candidatures-files\n4. Cochez "Public bucket"\n5. Créez le bucket', 'warning');
+                    return;
+                }
+
+                const bucketInfo = data.map(b => {
+                    return `📁 ${b.name}\n   - Public: ${b.public ? '✅ Oui' : '❌ Non'}\n   - ID: ${b.id}\n   - Créé le: ${b.created_at}`;
+                }).join('\n\n');
+
+                const hasCandidaturesBucket = data.some(b => b.id === 'candidatures-files');
+
+                if (hasCandidaturesBucket) {
+                    const bucket = data.find(b => b.id === 'candidatures-files');
+                    if (bucket.public) {
+                        showResult(`✅ Buckets trouvés:\n\n${bucketInfo}\n\n✅ Le bucket "candidatures-files" existe et est PUBLIC !`, 'success');
+                    } else {
+                        showResult(`⚠️ Buckets trouvés:\n\n${bucketInfo}\n\n❌ Le bucket "candidatures-files" existe mais n'est PAS PUBLIC !\n\nVous devez le rendre public:\n1. Allez dans Storage > candidatures-files\n2. Configuration > Make bucket public`, 'warning');
+                    }
+                } else {
+                    showResult(`ℹ️ Buckets trouvés:\n\n${bucketInfo}\n\n❌ Le bucket "candidatures-files" n'existe pas !\n\nVous devez le créer dans Storage.`, 'warning');
+                }
+            } catch (error) {
+                showResult(`❌ Erreur:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function checkBucket() {
+            if (!supabase && !initSupabase()) return;
+
+            showResult('🔄 Vérification du bucket "candidatures-files"...', 'info');
+
+            try {
+                // Test de listage des fichiers dans le bucket
+                const { data, error } = await supabase.storage
+                    .from('candidatures-files')
+                    .list('', { limit: 1 });
+
+                if (error) {
+                    if (error.message.includes('not found') || error.message.includes('Bucket not found')) {
+                        showResult(`❌ Le bucket "candidatures-files" n'existe PAS !\n\nErreur: ${error.message}\n\nCréez-le manuellement:\n1. Dashboard Supabase > Storage\n2. New bucket\n3. Nom: candidatures-files\n4. Cochez "Public bucket"\n5. Create bucket`, 'error');
+                    } else {
+                        showResult(`❌ Erreur d'accès au bucket:\n\n${error.message}\n\nC'est peut-être un problème de permissions RLS.`, 'error');
+                    }
+                    return;
+                }
+
+                showResult(`✅ Le bucket "candidatures-files" existe et est accessible !\n\nFichiers dans le bucket: ${data.length}`, 'success');
+            } catch (error) {
+                showResult(`❌ Erreur:\n\n${error.message}`, 'error');
+            }
+        }
+
+        async function testUpload() {
+            if (!supabase && !initSupabase()) return;
+
+            const fileInput = document.getElementById('testFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showResult('❌ Veuillez sélectionner un fichier PDF', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.type.includes('pdf')) {
+                showResult('❌ Veuillez sélectionner un fichier PDF', 'error');
+                return;
+            }
+
+            showResult(`🔄 Upload en cours de "${file.name}" (${(file.size / 1024).toFixed(2)} KB)...`, 'info');
+
+            try {
+                const filePath = `test/${Date.now()}_${file.name}`;
+
+                const { data, error } = await supabase.storage
+                    .from('candidatures-files')
+                    .upload(filePath, file, {
+                        contentType: file.type,
+                        upsert: false
+                    });
+
+                if (error) {
+                    showResult(`❌ Erreur d'upload:\n\n${error.message}\n\nCauses possibles:\n- Le bucket n'existe pas\n- Le bucket n'est pas public\n- Les politiques RLS ne sont pas configurées\n- Problème de taille de fichier`, 'error');
+                    return;
+                }
+
+                // Récupérer l'URL publique
+                const { data: urlData } = supabase.storage
+                    .from('candidatures-files')
+                    .getPublicUrl(filePath);
+
+                showResult(`✅ Upload réussi !\n\nChemin: ${data.path}\nURL publique: ${urlData.publicUrl}\n\n🎉 Votre configuration Supabase fonctionne parfaitement !`, 'success');
+            } catch (error) {
+                showResult(`❌ Erreur réseau:\n\n${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
