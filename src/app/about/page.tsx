@@ -32,6 +32,31 @@ export default function AboutPage() {
               <p>{t('about-story-p3')}</p>
               <p>{t('about-story-p4')}</p>
               <p>{t('about-story-p5')}</p>
+              
+              {/* Partners Logos */}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                gap: '3rem', 
+                marginTop: '2rem',
+                flexWrap: 'wrap'
+              }}>
+                <Image
+                  src="/images/next-jeel-logo.svg"
+                  alt="Next Jeel"
+                  width={200}
+                  height={60}
+                  style={{ objectFit: 'contain' }}
+                />
+                <Image
+                  src="/images/tech-bridge-africa-logo.svg"
+                  alt="Tech Bridge Africa"
+                  width={120}
+                  height={120}
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
             </div>
             <div className="mission-image">
               <div className="team-grid">
