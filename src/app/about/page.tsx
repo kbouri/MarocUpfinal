@@ -45,15 +45,15 @@ export default function AboutPage() {
                 <Image
                   src="/images/next-jeel-logo.svg"
                   alt="Next Jeel"
-                  width={200}
-                  height={60}
+                  width={250}
+                  height={75}
                   style={{ objectFit: 'contain' }}
                 />
                 <Image
                   src="/images/tech-bridge-africa-logo.svg"
                   alt="Tech Bridge Africa"
-                  width={120}
-                  height={120}
+                  width={100}
+                  height={100}
                   style={{ objectFit: 'contain' }}
                 />
               </div>
