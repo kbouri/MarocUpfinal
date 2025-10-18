@@ -38,22 +38,22 @@ export default function AboutPage() {
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center', 
-                gap: '3rem', 
+                gap: '4rem', 
                 marginTop: '2rem',
                 flexWrap: 'wrap'
               }}>
                 <Image
                   src="/images/next-jeel-logo.svg"
                   alt="Next Jeel"
-                  width={250}
-                  height={75}
+                  width={300}
+                  height={90}
                   style={{ objectFit: 'contain' }}
                 />
                 <Image
                   src="/images/tech-bridge-africa-logo.svg"
                   alt="Tech Bridge Africa"
-                  width={100}
-                  height={100}
+                  width={150}
+                  height={150}
                   style={{ objectFit: 'contain' }}
                 />
               </div>
