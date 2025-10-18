@@ -45,8 +45,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/next-jeel-logo.svg"
                   alt="Next Jeel"
-                  width={500}
-                  height={120}
+                  width={600}
+                  height={150}
                   style={{ objectFit: 'contain' }}
                 />
                 <Image

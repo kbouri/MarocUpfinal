@@ -1,27 +1,27 @@
-<svg width="500" height="120" viewBox="0 0 500 120" xmlns="http://www.w3.org/2000/svg">
+<svg width="600" height="150" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       .stars { fill: #2563eb; }
-      .text { fill: #2563eb; font-family: Arial, sans-serif; font-weight: bold; font-size: 36px; }
+      .text { fill: #2563eb; font-family: Arial, sans-serif; font-weight: bold; font-size: 42px; }
     </style>
   </defs>
   
   <!-- Stars cluster -->
   <g class="stars">
-    <path d="M30,30 L36,15 L42,30 L60,30 L45,45 L51,60 L36,48 L21,60 L27,45 L12,30 Z" />
-    <path d="M55,22 L61,7 L67,22 L85,22 L70,37 L76,52 L61,40 L46,52 L52,37 L37,22 Z" />
-    <path d="M80,30 L86,15 L92,30 L110,30 L95,45 L101,60 L86,48 L71,60 L77,45 L62,30 Z" />
-    <path d="M35,55 L41,40 L47,55 L65,55 L50,70 L56,85 L41,73 L26,85 L32,70 L17,55 Z" />
-    <path d="M60,47 L66,32 L72,47 L90,47 L75,62 L81,77 L66,65 L51,77 L57,62 L42,47 Z" />
-    <path d="M85,55 L91,40 L97,55 L115,55 L100,70 L106,85 L91,73 L76,85 L82,70 L67,55 Z" />
-    <path d="M40,80 L46,65 L52,80 L70,80 L55,95 L61,110 L46,98 L31,110 L37,95 L22,80 Z" />
-    <path d="M65,72 L71,57 L77,72 L95,72 L80,87 L86,102 L71,90 L56,102 L62,87 L47,72 Z" />
-    <path d="M90,80 L96,65 L102,80 L120,80 L105,95 L111,110 L96,98 L81,110 L87,95 L72,80 Z" />
+    <path d="M35,35 L42,18 L49,35 L70,35 L52,52 L59,69 L42,56 L25,69 L32,52 L14,35 Z" />
+    <path d="M65,25 L72,8 L79,25 L100,25 L82,42 L89,59 L72,46 L55,59 L62,42 L44,25 Z" />
+    <path d="M95,35 L102,18 L109,35 L130,35 L112,52 L119,69 L102,56 L85,69 L92,52 L74,35 Z" />
+    <path d="M40,65 L47,48 L54,65 L75,65 L57,82 L64,99 L47,86 L30,99 L37,82 L19,65 Z" />
+    <path d="M70,55 L77,38 L84,55 L105,55 L87,72 L94,89 L77,76 L60,89 L67,72 L49,55 Z" />
+    <path d="M100,65 L107,48 L114,65 L135,65 L117,82 L124,99 L107,86 L90,99 L97,82 L79,65 Z" />
+    <path d="M45,95 L52,78 L59,95 L80,95 L62,112 L69,129 L52,116 L35,129 L42,112 L24,95 Z" />
+    <path d="M75,85 L82,68 L89,85 L110,85 L92,102 L99,119 L82,106 L65,119 L72,102 L54,85 Z" />
+    <path d="M105,95 L112,78 L119,95 L140,95 L122,112 L129,129 L112,116 L95,129 L102,112 L84,95 Z" />
   </g>
   
   <!-- Text "next jeel" -->
-  <text x="150" y="80" class="text">next jeel</text>
+  <text x="180" y="100" class="text">next jeel</text>
   
   <!-- Arabic text "جيل" -->
-  <text x="400" y="80" class="text" text-anchor="end" dir="rtl">جيل</text>
+  <text x="480" y="100" class="text" text-anchor="end" dir="rtl">جيل</text>
 </svg>
