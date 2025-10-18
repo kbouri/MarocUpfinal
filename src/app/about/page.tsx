@@ -43,14 +43,14 @@ export default function AboutPage() {
                 flexWrap: 'wrap'
               }}>
                 <Image
-                  src="/images/next-jeel-logo.svg"
+                  src="/images/Next Jeel logo.jpeg"
                   alt="Next Jeel"
                   width={600}
                   height={150}
                   style={{ objectFit: 'contain' }}
                 />
                 <Image
-                  src="/images/tech-bridge-africa-logo.svg"
+                  src="/images/Tech Bridge logo.jpeg"
                   alt="Tech Bridge Africa"
                   width={150}
                   height={150}
