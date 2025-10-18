@@ -39,7 +39,8 @@ export default function AboutPage() {
                 justifyContent: 'center', 
                 alignItems: 'center', 
                 gap: '2rem', 
-                marginTop: '2rem',
+                marginTop: '1rem',
+                marginBottom: '1rem',
                 flexWrap: 'wrap'
               }}>
                 <Image
