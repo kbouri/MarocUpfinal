@@ -52,8 +52,8 @@ export default function AboutPage() {
                 <Image
                   src="/images/Tech Bridge logo.jpeg"
                   alt="Tech Bridge Africa"
-                  width={150}
-                  height={150}
+                  width={180}
+                  height={180}
                   style={{ objectFit: 'contain' }}
                 />
               </div>
