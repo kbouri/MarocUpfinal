@@ -38,15 +38,15 @@ export default function AboutPage() {
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center', 
-                gap: '4rem', 
+                gap: '2rem', 
                 marginTop: '2rem',
                 flexWrap: 'wrap'
               }}>
                 <Image
                   src="/images/Next Jeel logo.jpeg"
                   alt="Next Jeel"
-                  width={600}
-                  height={150}
+                  width={300}
+                  height={75}
                   style={{ objectFit: 'contain' }}
                 />
                 <Image
