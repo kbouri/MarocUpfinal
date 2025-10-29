@@ -145,7 +145,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
         errorMsg = errorDetails.substring(0, 200);
       } else if (errorDetails && typeof errorDetails === 'object' && Object.keys(errorDetails).length > 0) {
         errorMsg = JSON.stringify(errorDetails);
-      } elseMor {
+      } else {
         errorMsg = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
       }
       
