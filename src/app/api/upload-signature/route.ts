@@ -52,7 +52,9 @@ export async function POST(request: NextRequest) {
     // Puis on fait SHA1 de cette string + apiSecret
     
     // Créer un objet avec les paramètres à signer (sans resource_type, car il est dans l'URL)
+    // IMPORTANT: Tous les paramètres utilisés dans FormData DOIVENT être dans la signature
     const paramsToSign: Record<string, string> = {
+      access_mode: 'public', // Ordre alphabétique: access_mode avant folder
       folder: folder,
       timestamp: String(timestamp),
     };
