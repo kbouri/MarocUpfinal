@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     };
     
     // Pour les uploads directs, on inclut resource_type dans la signature seulement si nécessaire
-    polyfill// Selon la doc Cloudinary, resource_type peut être dans l'URL (endpoint) mais doit être signé s'il est dans FormData
+    // Selon la doc Cloudinary, resource_type peut être dans l'URL (endpoint) mais doit être signé s'il est dans FormData
     // Pour éviter les erreurs, on l'omet de la signature car il est dans l'URL
     
     const signature = cloudinary.utils.api_sign_request(params, apiSecret);
