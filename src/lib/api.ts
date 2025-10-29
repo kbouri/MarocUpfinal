@@ -86,12 +86,26 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     // Utiliser l'endpoint correct selon le type de ressource
     const resourceEndpoint = isPDF ? 'raw' : 'image';
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceEndpoint}/upload`;
+    // Debug: vérifier les valeurs avant l'upload
     console.log(`📤 Uploading to Cloudinary: ${uploadUrl}`, {
       fileName: file.name,
       fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      fileSizeBytes: file.size,
       resourceType: isPDF ? 'raw' : 'auto',
       apiKey: apiKey.substring(0, 5) + '...',
-      cloudName: cloudName
+      cloudName: cloudName,
+      folder: 'marocup-uploads',
+      timestamp: timestampToUse,
+    });
+    
+    // Debug: vérifier le FormData (sans le fichier pour éviter de logger tout le buffer)
+    console.log('📋 FormData params (sans file):', {
+      api_key: apiKey.substring(0, 5) + '...',
+      folder: 'marocup-uploads',
+      timestamp: timestampToUse,
+      signature: signature.substring(0, 10) + '...',
+      hasFile: true,
+      fileName: file.name,
     });
 
     const uploadResponse = await fetch(uploadUrl, {
