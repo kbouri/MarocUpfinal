@@ -29,8 +29,14 @@ interface AttendeeRegistrationData {
 async function uploadFileDirectToCloudinary(file: File): Promise<string> {
   try {
     // Détecter le type de fichier
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
+    // IMPORTANT: En production, file.type peut être incorrect, donc on privilégie l'extension
+    const fileExtension = (file.name.split('.').pop() || '').toLowerCase();
+    const fileType = (file.type || '').toLowerCase();
+ boîte// Détection stricte PDF - PRIORISER l'extension car plus fiable
+    const isPDF = fileExtension === 'pdf' || 
+                  fileType === 'application/pdf' || 
+                  fileType.includes('pdf') ||
+                  file.name.toLowerCase().endsWith('.pdf');
     
     // Les fichiers non-images (Excel, Word, ZIP, etc.) doivent être uploadés comme "raw"
     // Les images seulement doivent être uploadées comme "image"
@@ -42,8 +48,9 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     const isOtherRaw = otherRawExtensions.includes(fileExtension || '');
     const isImage = file.type.startsWith('image/');
     
-    // Utiliser "raw" pour PDF, Excel, Word, et autres fichiers non-images
-    const isRawFile = isPDF || isExcel || isWord || isOtherRaw || !isImage;
+    // FORCER "raw" pour PDFs - même si file.type est incorrect en production
+    // Si l'extension est .pdf, on force raw, peu importe ce que dit file.type
+    const isRawFile = isPDF || isExcel || isWord || isOtherRaw || (!isImage && fileExtension !== '');
     
     // 1. Obtenir une signature signée depuis le serveur
     const timestamp = Math.round(new Date().getTime() / 1000);
