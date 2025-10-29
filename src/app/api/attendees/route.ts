@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import { Pool } from 'pg';
 
 export async function POST(request: NextRequest) {
   try {
+    // Créer le pool au runtime avec les variables d'environnement
+    const connectionString = process.env.DATABASE_URL;
+    
+    if (!connectionString) {
+      console.error('❌ DATABASE_URL manquante');
+      return NextResponse.json(
+        { error: 'Database configuration missing. Please check environment variables.' },
+        { status: 500 }
+      );
+    }
+
+    const pool = new Pool({
+      connectionString: connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+
     const body = await request.json();
     
     const result = await pool.query(
@@ -17,6 +35,9 @@ export async function POST(request: NextRequest) {
       ]
     );
 
+    // Fermer le pool après utilisation
+    await pool.end();
+    
     return NextResponse.json({ success: true, id: result.rows[0].id });
   } catch (error: unknown) {
     console.error('Error:', error);
