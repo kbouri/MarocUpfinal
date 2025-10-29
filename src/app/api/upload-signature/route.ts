@@ -28,16 +28,15 @@ export async function POST(request: NextRequest) {
     });
 
     // Générer une signature pour l'upload direct vers Cloudinary
-    // IMPORTANT: Tous les paramètres utilisés dans FormData DOIVENT être dans la signature
-    // L'ordre est important : timestamp doit venir en premier
+    // IMPORTANT: Les paramètres doivent être triés ALPHABÉTIQUEMENT pour la signature Cloudinary
+    // L'ordre doit être: folder, timestamp (ordre alphabétique)
     const params: Record<string, any> = {
-      timestamp: timestamp,
       folder: folder,
+      timestamp: timestamp,
     };
     
-    // Pour les uploads directs, on inclut resource_type dans la signature seulement si nécessaire
-    // Selon la doc Cloudinary, resource_type peut être dans l'URL (endpoint) mais doit être signé s'il est dans FormData
-    // Pour éviter les erreurs, on l'omet de la signature car il est dans l'URL
+    // Pour les uploads directs, resource_type est dans l'URL (/raw/upload ou /image/upload)
+    // On ne l'inclut donc PAS dans la signature car il n'est pas dans le FormData
     
     const signature = cloudinary.utils.api_sign_request(params, apiSecret);
     

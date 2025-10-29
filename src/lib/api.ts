@@ -62,12 +62,12 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 
     // 2. Upload direct vers Cloudinary depuis le client (contourne Vercel)
     // IMPORTANT: L'ordre des paramètres dans FormData doit correspondre à la signature
-    // Les paramètres signés doivent être: timestamp, folder (dans cet ordre)
+    // Les paramètres signés doivent être dans l'ordre alphabétique: folder, timestamp
     const uploadFormData = new FormData();
     uploadFormData.append('file', file); // Le fichier peut venir en premier
     uploadFormData.append('api_key', apiKey);
+    uploadFormData.append('folder', 'marocup-uploads'); // Ordre alphabétique: folder avant timestamp
     uploadFormData.append('timestamp', serverTimestamp.toString());
-    uploadFormData.append('folder', 'marocup-uploads');
     // resource_type est déterminé par l'URL (/raw/upload ou /image/upload), pas besoin dans FormData
     uploadFormData.append('signature', signature); // Signature en dernier
 
