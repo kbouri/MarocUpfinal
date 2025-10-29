@@ -101,19 +101,54 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      let errorDetails;
-      try {
-        errorDetails = JSON.parse(errorText);
-      } catch {
-        errorDetails = errorText;
+      let errorDetails: any = null;
+      let parsedError = null;
+      
+      // Essayer de parser le JSON
+      if (errorText && errorText.trim()) {
+        try {
+          parsedError = JSON.parse(errorText);
+          errorDetails = parsedError;
+        } catch (parseError) {
+          // Si ce n'est pas du JSON, garder le texte brut
+          errorDetails = errorText;
+        }
+      } else {
+        errorDetails = { rawError: 'Empty response body' };
       }
-      console.error('❌ Cloudinary upload error:', {
+      
+      // Log détaillé pour debug
+      const errorInfo: any = {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
-        error: errorDetails,
         url: uploadUrl,
-      });
-      const errorMsg = errorDetails?.error?.message || errorDetails?.message || (typeof errorDetails === 'string' ? errorDetails : JSON.stringify(errorDetails));
+        errorTextLength: errorText?.length || 0,
+        errorTextPreview: errorText ? errorText.substring(0, 500) : '(empty)',
+      };
+      
+      if (parsedError) {
+        errorInfo.parsedError = parsedError;
+      }
+      if (errorDetails) {
+        errorInfo.errorDetails = errorDetails;
+      }
+      
+      console.error('❌ Cloudinary upload error:', errorInfo);
+      
+      // Extraire le message d'erreur
+      let errorMsg = 'Unknown error';
+      if (parsedError?.error?.message) {
+        errorMsg = parsedError.error.message;
+      } else if (parsedError?.message) {
+        errorMsg = parsedError.message;
+      } else if (typeof errorDetails === 'string' && errorDetails) {
+        errorMsg = errorDetails.substring(0, 200);
+      } else if (errorDetails && typeof errorDetails === 'object' && Object.keys(errorDetails).length > 0) {
+        errorMsg = JSON.stringify(errorDetails);
+      } elseMor {
+        errorMsg = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
+      }
+      
       throw new Error(
         `Upload to Cloudinary failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorMsg}`
       );
