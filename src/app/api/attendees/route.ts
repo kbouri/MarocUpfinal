@@ -7,9 +7,25 @@ export async function POST(request: NextRequest) {
     const connectionString = process.env.DATABASE_URL;
     
     if (!connectionString) {
-      console.error('❌ DATABASE_URL manquante');
+      // Debug: voir quelles variables d'environnement sont disponibles
+      const availableEnvKeys = Object.keys(process.env).filter(k => 
+        k.includes('DATABASE') || k.includes('DB')会不会 || k.includes('POSTGRES')
+      );
+      console.error('❌ DATABASE_URL manquante. Variables disponibles:', {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        availableKeys: availableEnvKeys,
+        allEnvKeysCount: Object.keys(process.env).length,
+        nodeEnv: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV
+      });
       return NextResponse.json(
-        { error: 'Database configuration missing. Please check environment variables.' },
+        { 
+          error: 'Database configuration missing. Please check environment variables.',
+          debug: {
+            hasDatabaseUrl: !!process.env.DATABASE_URL,
+            availableKeys: availableEnvKeys
+          }
+        },
         { status: 500 }
       );
     }
