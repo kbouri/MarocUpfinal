@@ -1,0 +1,11 @@
+# Copie-colle ces variables dans Vercel → Settings → Environment Variables
+# Pour chaque variable, coche: Production, Preview et Development
+
+CLOUDINARY_CLOUD_NAME=dvwmz9puj
+
+CLOUDINARY_API_KEY=541725366943753
+
+CLOUDINARY_API_SECRET=8KFcKLxpMfHlpMjDiJ2ZamScnt0
+
+DATABASE_URL=postgresql://neondb_owner:npg_G4njvl7dHISV@ep-sweet-recipe-adihih03-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
+

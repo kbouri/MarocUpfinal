@@ -3,6 +3,19 @@ import { cloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier que Cloudinary est configuré
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    
+    if (!cloudName || !apiKey || !apiSecret) {
+      console.error('❌ Variables Cloudinary manquantes');
+      return NextResponse.json(
+        { error: 'Cloudinary configuration missing. Please check environment variables.' },
+        { status: 500 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
