@@ -28,6 +28,8 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <link rel="icon" type="image/png" href="/marocup-icon.png" />
+        <link rel="apple-touch-icon" href="/marocup-icon.png" />
       </head>
       <body className={poppins.className}>
         <TranslationProvider>
