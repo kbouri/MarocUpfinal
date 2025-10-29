@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: 'MarocUp - Inspirer, Connecter, Innover | 19-20 Décembre 2025, Rabat',
   description: 'MarocUp est un événement dédié aux startups early-stage fondées par des Marocains. Rejoignez-nous pour 2 jours d\'accélération intensive avec mentoring personnalisé, concours de pitch & récompense et networking.',
   keywords: 'startup Morocco, early-stage, Moroccan diaspora, pitch competition, mentoring, Rabat, entrepreneurship',
+  icons: {
+    icon: '/marocup-icon.png',
+    apple: '/marocup-icon.png',
+  },
 };
 
 export default function RootLayout({
