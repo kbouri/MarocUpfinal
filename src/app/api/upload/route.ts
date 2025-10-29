@@ -65,9 +65,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Déterminer le type de ressource selon l'extension du fichier
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    const isPDF = fileExtension === 'pdf';
+    // Déterminer le type de ressource pour Cloudinary (isPDF déjà défini plus haut)
     const resourceType = isPDF ? 'raw' : 'auto'; // 'raw' pour PDF, 'auto' pour autres
     
     // Upload vers Cloudinary
