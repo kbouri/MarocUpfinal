@@ -35,7 +35,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     // Les fichiers non-images (Excel, Word, ZIP, etc.) doivent être uploadés comme "raw"
     // Les images seulement doivent être uploadées comme "image"
     const excelExtensions = ['xlsx', 'xls', 'xlsm', 'xlsb'];
-    const wordExtensions = ['docx', ' convencer', 'docm'];
+    const wordExtensions = ['docx', 'doc', 'docm'];
     const otherRawExtensions = ['zip', 'rar', '7z', 'txt', 'csv'];
     const isExcel = excelExtensions.includes(fileExtension || '');
     const isWord = wordExtensions.includes(fileExtension || '');
