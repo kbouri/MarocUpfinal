@@ -46,11 +46,19 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 
     if (!signatureResponse.ok) {
       const errorText = await signatureResponse.text();
-      console.error('Signature API error:', errorText);
+      console.error('❌ Signature API error:', errorText);
       throw new Error('Failed to get upload signature');
     }
 
-    const { signature, apiKey, cloudName, timestamp: serverTimestamp } = await signatureResponse.json();
+    const signatureData = await signatureResponse.json();
+    console.log('✅ Signature received:', { 
+      hasSignature: !!signatureData.signature,
+      hasApiKey: !!signatureData.apiKey,
+      hasCloudName: !!signatureData.cloudName,
+      cloudName: signatureData.cloudName 
+    });
+
+    const { signature, apiKey, cloudName, timestamp: serverTimestamp } = signatureData;
 
     // 2. Upload direct vers Cloudinary depuis le client (contourne Vercel)
     const uploadFormData = new FormData();
@@ -63,18 +71,38 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 
     // Utiliser l'endpoint correct selon le type de ressource
     const resourceEndpoint = isPDF ? 'raw' : 'image';
-    const uploadResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceEndpoint}/upload`,
-      {
-        method: 'POST',
-        body: uploadFormData,
-      }
-    );
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceEndpoint}/upload`;
+    console.log(`📤 Uploading to Cloudinary: ${uploadUrl}`, {
+      fileName: file.name,
+      fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+      resourceType: isPDF ? 'raw' : 'auto',
+      apiKey: apiKey.substring(0, 5) + '...',
+      cloudName: cloudName
+    });
+
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: uploadFormData,
+    });
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      console.error('Cloudinary upload error:', errorText);
-      throw new Error(`Upload to Cloudinary failed: ${uploadResponse.status}`);
+      let errorDetails;
+      try {
+        errorDetails = JSON.parse(errorText);
+      } catch {
+        errorDetails = errorText;
+      }
+      console.error('❌ Cloudinary upload error:', {
+        status: uploadResponse.status,
+        statusText: uploadResponse.statusText,
+        error: errorDetails,
+        url: uploadUrl,
+      });
+      const errorMsg = errorDetails?.error?.message || errorDetails?.message || (typeof errorDetails === 'string' ? errorDetails : JSON.stringify(errorDetails));
+      throw new Error(
+        `Upload to Cloudinary failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorMsg}`
+      );
     }
 
     const uploadResult = await uploadResponse.json();
