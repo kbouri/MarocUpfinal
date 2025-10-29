@@ -59,6 +59,15 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     });
 
     const { signature, apiKey, cloudName, timestamp: serverTimestamp } = signatureData;
+    
+    // IMPORTANT: Utiliser le timestamp du serveur (celui utilisé pour générer la signature)
+    const timestampToUse = String(serverTimestamp || timestamp);
+    
+    console.log('🔑 Signature details:', {
+      signature: signature.substring(0, 10) + '...',
+      timestampUsed: timestampToUse,
+      cloudName: cloudName
+    });
 
     // 2. Upload direct vers Cloudinary depuis le client (contourne Vercel)
     // IMPORTANT: L'ordre des paramètres dans FormData doit correspondre à la signature
@@ -67,7 +76,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     uploadFormData.append('file', file); // Le fichier peut venir en premier
     uploadFormData.append('api_key', apiKey);
     uploadFormData.append('folder', 'marocup-uploads'); // Ordre alphabétique: folder avant timestamp
-    uploadFormData.append('timestamp', serverTimestamp.toString());
+    uploadFormData.append('timestamp', timestampToUse); // Utiliser exactement le timestamp du serveur
     // resource_type est déterminé par l'URL (/raw/upload ou /image/upload), pas besoin dans FormData
     uploadFormData.append('signature', signature); // Signature en dernier
 
