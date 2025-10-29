@@ -39,6 +39,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Validation de la taille du fichier (50MB max)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: `File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size of 50MB` },
+        { status: 400 }
+      );
+    }
+
+    // Validation du type de fichier
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
+    
+    if (!isPDF && !allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: `File type ${file.type} is not allowed. Only PDF and images are accepted.` },
+        { status: 400 }
+      );
+    }
+
+    console.log(`📤 Uploading file: ${file.name}, size: ${(file.size / 1024 / 1024).toFixed(2)}MB, type: ${file.type}`);
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -70,11 +93,32 @@ export async function POST(request: NextRequest) {
       ).end(buffer);
     });
 
+    console.log(`✅ Upload successful: ${uploadResult.secure_url}`);
     return NextResponse.json({ url: uploadResult.secure_url });
   } catch (error: unknown) {
-    console.error('Upload error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('❌ Upload error:', error);
+    
+    let errorMessage = 'Upload failed';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      // Si c'est une erreur Cloudinary, extraire le message utile
+      if (errorMessage.includes('Cloudinary')) {
+        errorMessage = 'File upload to storage failed. Please try again or contact support.';
+      }
+    }
+    
+    return NextResponse.json(
+      { 
+        error: errorMessage,
+        details: error instanceof Error ? error.message : String(error)
+      },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 }
 

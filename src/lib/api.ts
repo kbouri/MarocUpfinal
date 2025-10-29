@@ -29,18 +29,61 @@ export async function uploadFile(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  });
+  try {
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Upload failed');
+    // Vérifier le Content-Type avant de parser
+    const contentType = response.headers.get('content-type');
+    const isJson = contentType?.includes('application/json');
+
+    if (!response.ok) {
+      let errorMessage = 'Upload failed';
+      
+      if (isJson) {
+        try {
+          const error = await response.json();
+          errorMessage = error.error || error.message || 'Upload failed';
+        } catch (e) {
+          // Si le JSON est invalide, lire le texte
+          const text = await response.text();
+          console.error('Upload error response (text):', text);
+          errorMessage = `Upload failed: ${response.status} ${response.statusText}`;
+        }
+      } else {
+        // Réponse non-JSON (HTML, texte, etc.)
+        const text = await response.text();
+        console.error('Upload error response (non-JSON):', text.substring(0, 200));
+        errorMessage = `Upload failed: ${response.status} ${response.statusText}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+
+    // Parser la réponse JSON
+    if (!isJson) {
+      const text = await response.text();
+      console.error('Upload response is not JSON:', text.substring(0, 200));
+      throw new Error('Invalid response format from server');
+    }
+
+    const data = await response.json();
+    
+    if (!data.url) {
+      throw new Error('No URL returned from upload');
+    }
+    
+    return data.url;
+  } catch (error) {
+    // Si c'est déjà une Error, la relancer
+    if (error instanceof Error) {
+      throw error;
+    }
+    // Sinon, créer une nouvelle Error
+    throw new Error('Upload failed: ' + String(error));
   }
-
-  const data = await response.json();
-  return data.url;
 }
 
 export async function submitStartupApplication(data: StartupApplicationData) {
