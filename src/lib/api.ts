@@ -96,7 +96,6 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     uploadFormData.append('access_mode', 'public'); // IMPORTANT: Rendre le fichier accessible publiquement
     // resource_type est déterminé par l'URL (/raw/upload ou /image/upload), pas besoin dans FormData
     uploadFormData.append('signature', signature); // Signature en dernier
-<｜place▁holder▁no▁353｜>Conseil important: Pour que `access_mode` soit inclus dans la signature Cloudinary, il doit être ajouté aux paramètres signés dans `src/app/api/upload-signature/route.ts`.
 
     // Utiliser l'endpoint correct selon le type de ressource
     const resourceEndpoint = isRawFile ? 'raw' : 'image';
