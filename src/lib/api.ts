@@ -97,7 +97,7 @@ export async function uploadFile(file: File): Promise<string> {
   // Vercel a une limite stricte de 4.5MB pour les body de requêtes
   // L'upload direct contourne complètement cette limitation
   const fileExtension = file.name.split('.').pop()?.toLowerCase();
-  const isPDF = fileExtension === 'pdf' || file.type === INTRODUCTION/pdf';
+  const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
   
   console.log(`📤 Using direct upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB, PDF: ${isPDF})`);
   return uploadFileDirectToCloudinary(file);
