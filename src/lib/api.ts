@@ -91,9 +91,10 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     const uploadFormData = new FormData();
     uploadFormData.append('file', file); // Le fichier peut venir en premier
     uploadFormData.append('api_key', apiKey);
-    uploadFormData.append('folder', 'marocup-uploads'); // Ordre alphabétique: folder avant timestamp
-    uploadFormData.append('timestamp', timestampToUse); // Utiliser exactement le timestamp du serveur
+    // IMPORTANT: Les paramètres signés doivent être dans l'ordre alphabétique : access_mode, folder, timestamp
     uploadFormData.append('access_mode', 'public'); // IMPORTANT: Rendre le fichier accessible publiquement
+    uploadFormData.append('folder', 'marocup-uploads');
+    uploadFormData.append('timestamp', timestampToUse); // Utiliser exactement le timestamp du serveur
     // resource_type est déterminé par l'URL (/raw/upload ou /image/upload), pas besoin dans FormData
     uploadFormData.append('signature', signature); // Signature en dernier
 
