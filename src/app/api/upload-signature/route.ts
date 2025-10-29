@@ -10,9 +10,27 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
     
+    // Debug: vérifier les variables d'environnement
+    console.log('🔍 Cloudinary env check:', {
+      hasCloudName: !!cloudName,
+      hasApiKey: !!apiKey,
+      hasApiSecret: !!apiSecret,
+      cloudNameLength: cloudName?.length || 0,
+      apiKeyLength: apiKey?.length || 0,
+      apiSecretLength: apiSecret?.length || 0,
+    });
+    
     if (!cloudName || !apiKey || !apiSecret) {
+      console.error('❌ Cloudinary environment variables missing!');
       return NextResponse.json(
-        { error: 'Cloudinary configuration missing' },
+        { 
+          error: 'Cloudinary configuration missing',
+          debug: {
+            hasCloudName: !!cloudName,
+            hasApiKey: !!apiKey,
+            hasApiSecret: !!apiSecret
+          }
+        },
         { status: 500 }
       );
     }
