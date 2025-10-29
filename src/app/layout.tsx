@@ -14,8 +14,14 @@ export const metadata: Metadata = {
   description: 'MarocUp est un événement dédié aux startups early-stage fondées par des Marocains. Rejoignez-nous pour 2 jours d\'accélération intensive avec mentoring personnalisé, concours de pitch & récompense et networking.',
   keywords: 'startup Morocco, early-stage, Moroccan diaspora, pitch competition, mentoring, Rabat, entrepreneurship',
   icons: {
-    icon: '/marocup-icon.png',
-    apple: '/marocup-icon.png',
+    icon: [
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/marocup-icon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/marocup-icon.png', type: 'image/png' },
+    ],
   },
 };
 
@@ -28,8 +34,6 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-        <link rel="icon" type="image/png" href="/marocup-icon.png" />
-        <link rel="apple-touch-icon" href="/marocup-icon.png" />
       </head>
       <body className={poppins.className}>
         <TranslationProvider>
