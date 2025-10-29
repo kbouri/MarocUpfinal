@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cloudinary } from '@/lib/cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier que Cloudinary est configuré
+    // Configuration Cloudinary au runtime (pas au build time)
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
@@ -24,6 +24,13 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Configurer Cloudinary au runtime
+    cloudinary.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+    });
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
