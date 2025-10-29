@@ -18,17 +18,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { timestamp, folder = 'marocup-uploads' } = body;
+    const { timestamp, folder = 'marocup-uploads', resource_type = 'raw' } = body;
 
     // Générer une signature pour l'upload direct vers Cloudinary
-    const signature = cloudinary.utils.api_sign_request(
-      {
-        timestamp: timestamp,
-        folder: folder,
-        resource_type: 'raw', // Pour PDF
-      },
-      apiSecret
-    );
+    const params: any = {
+      timestamp: timestamp,
+      folder: folder,
+    };
+    
+    // Ajouter resource_type seulement s'il est spécifié
+    if (resource_type) {
+      params.resource_type = resource_type;
+    }
+    
+    const signature = cloudinary.utils.api_sign_request(params, apiSecret);
 
     return NextResponse.json({
       signature,
@@ -36,6 +39,7 @@ export async function POST(request: NextRequest) {
       cloudName,
       timestamp,
       folder,
+      resource_type: resource_type || 'raw',
     });
   } catch (error) {
     console.error('Signature generation error:', error);

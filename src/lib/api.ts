@@ -25,18 +25,28 @@ interface AttendeeRegistrationData {
 
 // Helper functions pour appeler les API routes
 
-// Upload direct vers Cloudinary pour les gros fichiers (>4MB)
+// Upload direct vers Cloudinary pour les gros fichiers et PDFs
 async function uploadFileDirectToCloudinary(file: File): Promise<string> {
   try {
+    // Détecter si c'est un PDF
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
+    
     // 1. Obtenir une signature signée depuis le serveur
     const timestamp = Math.round(new Date().getTime() / 1000);
     const signatureResponse = await fetch('/api/upload-signature', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ timestamp, folder: 'marocup-uploads' }),
+      body: JSON.stringify({ 
+        timestamp, 
+        folder: 'marocup-uploads',
+        resource_type: isPDF ? 'raw' : 'auto'
+      }),
     });
 
     if (!signatureResponse.ok) {
+      const errorText = await signatureResponse.text();
+      console.error('Signature API error:', errorText);
       throw new Error('Failed to get upload signature');
     }
 
@@ -49,7 +59,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     uploadFormData.append('timestamp', serverTimestamp.toString());
     uploadFormData.append('signature', signature);
     uploadFormData.append('folder', 'marocup-uploads');
-    uploadFormData.append('resource_type', 'raw'); // Pour PDF
+    uploadFormData.append('resource_type', isPDF ? 'raw' : 'auto'); // 'raw' pour PDF, 'auto' pour images
 
     const uploadResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
@@ -81,14 +91,21 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 }
 
 export async function uploadFile(file: File): Promise<string> {
-  // Si le fichier est trop gros (>4MB), utiliser l'upload direct vers Cloudinary
-  const useDirectUpload = file.size > 4 * 1024 * 1024; // 4MB
+  // Détecter le type de fichier
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
+  
+  // Pour les PDFs ou fichiers > 3MB, utiliser l'upload direct vers Cloudinary
+  // Cela évite les limitations de taille de Vercel (4.5MB max)
+  const useDirectUpload = isPDF || file.size > 3 * 1024 * 1024; // 3MB pour plus de sécurité
 
   if (useDirectUpload) {
+    console.log(`📤 Using direct upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
     return uploadFileDirectToCloudinary(file);
   }
 
-  // Sinon, utiliser l'upload via l'API (fichiers < 4MB)
+  // Sinon, utiliser l'upload via l'API (petits fichiers < 3MB, non-PDF)
+  console.log(`📤 Using API upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
   const formData = new FormData();
   formData.append('file', file);
 
