@@ -95,25 +95,23 @@ export async function uploadFile(file: File): Promise<string> {
   const fileExtension = file.name.split('.').pop()?.toLowerCase();
   const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
   
-  // Pour les PDFs ou fichiers > 3MB, utiliser l'upload direct vers Cloudinary
-  // Cela évite les limitations de taille de Vercel (4.5MB max)
-  const useDirectUpload = isPDF || file.size > 3 * 1024 * 1024; // 3MB pour plus de sécurité
+  // TOUJOURS utiliser l'upload direct vers Cloudinary pour éviter les limitations Vercel
+  // Vercel a une limite stricte de 4.5MB pour les body de requêtes
+  // L'upload direct contourne complètement cette limitation
+  console.log(`📤 Using direct upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB, PDF: ${isPDF})`);
+  return uploadFileDirectToCloudinary(file);
 
-  if (useDirectUpload) {
-    console.log(`📤 Using direct upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-    return uploadFileDirectToCloudinary(file);
-  }
-
-  // Sinon, utiliser l'upload via l'API (petits fichiers < 3MB, non-PDF)
-  console.log(`📤 Using API upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+  // Code commenté: upload via API Next.js (limité à 4.5MB sur Vercel)
+  // Ne plus utiliser cette méthode car elle échoue avec erreur 413 sur Vercel
+  // const useDirectUpload = isPDF || file.size > 3 * 1024 * 1024;
+  // if (!useDirectUpload) {
+  //   const formData = new FormData();
+  //   formData.append('file', file);
+  //   try {
+  //     const response = await fetch('/api/upload', {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
 
     // Vérifier le Content-Type avant de parser
     const contentType = response.headers.get('content-type');
