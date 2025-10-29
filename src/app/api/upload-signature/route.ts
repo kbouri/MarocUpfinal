@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v2 as cloudinary } from 'cloudinary';
+import crypto from 'crypto';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,31 +20,35 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { timestamp, folder = 'marocup-uploads', resource_type = 'raw' } = body;
 
-    // Configurer Cloudinary au runtime
-    cloudinary.config({
-      cloud_name: cloudName,
-      api_key: apiKey,
-      api_secret: apiSecret,
-    });
-
-    // Générer une signature pour l'upload direct vers Cloudinary
-    // IMPORTANT: Les paramètres doivent être triés ALPHABÉTIQUEMENT pour la signature Cloudinary
-    // L'ordre doit être: folder, timestamp (ordre alphabétique)
-    const params: Record<string, any> = {
+    // Générer une signature manuelle pour Cloudinary
+    // IMPORTANT: Les paramètres doivent être triés ALPHABÉTIQUEMENT et formatés comme query string
+    // Format attendu par Cloudinary: "folder=marocup-uploads&timestamp=1234567890"
+    // Puis on fait SHA1 de cette string + apiSecret
+    
+    // Créer un objet avec les paramètres à signer (sans resource_type, car il est dans l'URL)
+    const paramsToSign: Record<string, string> = {
       folder: folder,
-      timestamp: timestamp,
+      timestamp: timestamp.toString(),
     };
     
-    // Pour les uploads directs, resource_type est dans l'URL (/raw/upload ou /image/upload)
-    // On ne l'inclut donc PAS dans la signature car il n'est pas dans le FormData
+    // Trier les clés alphabétiquement et créer la query string
+    const sortedKeys = Object.keys(paramsToSign).sort();
+    const queryString = sortedKeys
+      .map(key => `${key}=${paramsToSign[key]}`)
+      .join('&');
     
-    const signature = cloudinary.utils.api_sign_request(params, apiSecret);
+    // Générer la signature SHA1 : queryString + apiSecret
+    // Exemple: sha1("folder=marocup-uploads&timestamp=1761768784" + apiSecret)
+    const signature = crypto
+      .createHash('sha1')
+      .update(queryString + apiSecret)
+      .digest('hex');
     
-    console.log('✅ Signature generated:', { 
+    console.log('✅ Signature generated manually:', { 
+      queryString,
+      signature: signature.substring(0, 10) + '...',
       timestamp, 
-      folder, 
-      resource_type,
-      hasSignature: !!signature 
+      folder,
     });
 
     return NextResponse.json({
@@ -63,4 +67,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
