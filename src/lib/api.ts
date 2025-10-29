@@ -25,7 +25,70 @@ interface AttendeeRegistrationData {
 
 // Helper functions pour appeler les API routes
 
+// Upload direct vers Cloudinary pour les gros fichiers (>4MB)
+async function uploadFileDirectToCloudinary(file: File): Promise<string> {
+  try {
+    // 1. Obtenir une signature signée depuis le serveur
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const signatureResponse = await fetch('/api/upload-signature', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timestamp, folder: 'marocup-uploads' }),
+    });
+
+    if (!signatureResponse.ok) {
+      throw new Error('Failed to get upload signature');
+    }
+
+    const { signature, apiKey, cloudName, timestamp: serverTimestamp } = await signatureResponse.json();
+
+    // 2. Upload direct vers Cloudinary depuis le client
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+    uploadFormData.append('api_key', apiKey);
+    uploadFormData.append('timestamp', serverTimestamp.toString());
+    uploadFormData.append('signature', signature);
+    uploadFormData.append('folder', 'marocup-uploads');
+    uploadFormData.append('resource_type', 'raw'); // Pour PDF
+
+    const uploadResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
+      {
+        method: 'POST',
+        body: uploadFormData,
+      }
+    );
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error('Cloudinary upload error:', errorText);
+      throw new Error('Upload to Cloudinary failed');
+    }
+
+    const uploadResult = await uploadResponse.json();
+    
+    if (!uploadResult.secure_url) {
+      throw new Error('No URL returned from Cloudinary');
+    }
+
+    return uploadResult.secure_url;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Direct upload failed: ' + String(error));
+  }
+}
+
 export async function uploadFile(file: File): Promise<string> {
+  // Si le fichier est trop gros (>4MB), utiliser l'upload direct vers Cloudinary
+  const useDirectUpload = file.size > 4 * 1024 * 1024; // 4MB
+
+  if (useDirectUpload) {
+    return uploadFileDirectToCloudinary(file);
+  }
+
+  // Sinon, utiliser l'upload via l'API (fichiers < 4MB)
   const formData = new FormData();
   formData.append('file', file);
 

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
+// Configuration pour gérer les fichiers volumineux
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 secondes max pour l'upload
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Configuration Cloudinary au runtime (pas au build time)
