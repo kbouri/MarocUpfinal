@@ -31,7 +31,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     // Détecter le type de fichier
     // IMPORTANT: En production, file.type peut être incorrect, donc on privilégie l'extension
     const fileExtension = (file.name.split('.').pop() || '').toLowerCase();
-    const fileType = (file cm) || '').toLowerCase();
+    const fileType = (file.type || '').toLowerCase();
     
     // Détection stricte PDF - PRIORISER l'extension car plus fiable
     const isPDF = fileExtension === 'pdf' || 
