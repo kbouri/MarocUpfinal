@@ -23,11 +23,11 @@ interface AttendeeRegistrationData {
   message: string | null;
 }
 
-// Helper functions pourjà appeler les API routes
+// Helper functions pour appeler les API routes
 
 // Upload direct vers Cloudinary pour éviter les limitations Vercel (4.5MB max)
 async function uploadFileDirectToCloudinary(file: File): Promise<string> {
- Reviews try {
+  try {
     // Détecter le type de fichier
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
