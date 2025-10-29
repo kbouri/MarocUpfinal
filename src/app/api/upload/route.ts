@@ -9,9 +9,18 @@ export async function POST(request: NextRequest) {
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
     
     if (!cloudName || !apiKey || !apiSecret) {
-      console.error('❌ Variables Cloudinary manquantes');
+      const debugInfo = {
+        hasCloudName: !!cloudName,
+        hasApiKey: !!apiKey,
+        hasApiSecret: !!apiSecret,
+        availableCloudinaryKeys: Object.keys(process.env).filter(k => k.includes('CLOUDINARY'))
+      };
+      console.error('❌ Variables Cloudinary manquantes:', debugInfo);
       return NextResponse.json(
-        { error: 'Cloudinary configuration missing. Please check environment variables.' },
+        { 
+          error: 'Cloudinary configuration missing. Please check environment variables.',
+          debug: debugInfo
+        },
         { status: 500 }
       );
     }
