@@ -40,7 +40,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
       body: JSON.stringify({ 
         timestamp, 
         folder: 'marocup-uploads',
-        resource_type: isPDF ? 'raw' : 'auto'
+        resource_type: isRawFile ? 'raw' : 'auto'
       }),
     });
 
