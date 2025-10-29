@@ -65,8 +65,11 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     
     console.log('🔑 Signature details:', {
       signature: signature.substring(0, 10) + '...',
+      signatureLength: signature.length,
       timestampUsed: timestampToUse,
-      cloudName: cloudName
+      timestampType: typeof timestampToUse,
+      cloudName: cloudName,
+      apiKey: apiKey.substring(0, 5) + '...'
     });
 
     // 2. Upload direct vers Cloudinary depuis le client (contourne Vercel)
