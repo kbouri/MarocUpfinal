@@ -84,7 +84,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
     uploadFormData.append('signature', signature); // Signature en dernier
 
     // Utiliser l'endpoint correct selon le type de ressource
-    const resourceEndpoint = isPDF ? 'raw' : 'image';
+    const resourceEndpoint = isRawFile ? 'raw' : 'image';
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceEndpoint}/upload`;
     // Debug: vérifier les valeurs avant l'upload
     console.log(`📤 Uploading to Cloudinary: ${uploadUrl}`, {
