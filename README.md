@@ -1,58 +1,76 @@
-# MarocUp Next.js Website
+# 🚀 MarocUp - Site Web Next.js
 
-Site web officiel de MarocUp - Inspirer, Connecter, Innover
+Site officiel de MarocUp : événement d'accélération pour startups early-stage fondées par des Marocains.
 
-## Installation
+## 🎯 Fonctionnalités
 
-1. Installer les dépendances :
+- ✅ **Deux parcours de candidature** :
+  - 🚀 **Startups** : Formulaire complet avec pitch deck, business plan
+  - 👥 **Invités** : Inscription simple pour assister à l'événement
+- ✅ **Système de traduction** FR/EN
+- ✅ **Upload de fichiers** (Cloudinary, 25GB gratuit)
+- ✅ **Pages** : Accueil, À propos, Programme, Candidatures, Mentors, Infos pratiques
+
+## 📦 Installation
+
 ```bash
 npm install
 ```
 
-2. Configurer les variables d'environnement :
-Créer un fichier `.env.local` avec :
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+## ⚙️ Configuration
+
+Crée un fichier `.env.local` à la racine :
+
+```env
+DATABASE_URL=postgresql://neondb_owner:npg_G4njvl7dHISV@ep-sweet-recipe-adihih03-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+CLOUDINARY_CLOUD_NAME=dvwmz9puj
+CLOUDINARY_API_KEY=541725366943753
+CLOUDINARY_API_SECRET=8KFcKLxpMfHlpMjDiJ2ZamScnt0
 ```
 
-3. Lancer le serveur de développement :
+## 🗄️ Base de Données
+
+1. Va sur https://console.neon.tech
+2. SQL Editor → Colle `neon-schema.sql` → Run
+
+## 🚀 Développement
+
 ```bash
 npm run dev
 ```
 
-## Structure du projet
+## 📝 Technologies
 
-- `/src/app/` - Pages Next.js (App Router)
-- `/src/components/` - Composants réutilisables
-- `/src/hooks/` - Hooks personnalisés
-- `/src/lib/` - Utilitaires et configurations
-- `/public/images/` - Images et assets
+- **Next.js 15.5** + **React 19** + **TypeScript**
+- **Neon** (PostgreSQL gratuit)
+- **Cloudinary** (Storage fichiers)
+- **Tailwind CSS 4**
 
-## Fonctionnalités
+## 🏗️ Structure
 
-- ✅ Navigation responsive avec menu mobile
-- ✅ Système de traduction FR/EN
-- ✅ Pages : Accueil, À propos, Programme, Candidature, Mentors, Infos pratiques
-- ✅ Formulaire de candidature avec upload de fichiers
-- ✅ Design responsive identique au site original
-- ✅ Intégration Supabase pour les candidatures
+```
+src/
+├── app/          # Pages Next.js
+├── components/   # Composants réutilisables
+├── contexts/     # Contextes React (translations)
+├── lib/          # Utilitaires (Supabase, translations)
+└── hooks/        # Hooks personnalisés
+```
 
-## Technologies utilisées
+## 📝 Technologies
 
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS
-- Supabase
-- Font Awesome
-- Inter Font
+- **Next.js 15.5** (App Router + Turbopack)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS 4**
+- **Supabase** (Database + Storage)
+- **Font Awesome**
 
-## Migration depuis HTML
+## 🌐 Déploiement
 
-Ce projet est une migration complète du site HTML original vers Next.js, en conservant :
-- Tous les textes et traductions
-- Le design et les couleurs exactes
-- Les images et assets
-- Les liens LinkedIn
-- Les fonctionnalités JavaScript
-- La structure responsive
+Le projet est déployé automatiquement sur **Vercel** via GitHub.
+
+---
+
+**MarocUp** - Inspirer, Connecter, Innover | 19-20 Décembre 2025, Rabat

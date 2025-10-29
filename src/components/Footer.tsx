@@ -21,8 +21,12 @@ export default function Footer() {
           <div className="footer-section">
             <h4>{t('footer-follow')}</h4>
             <div className="social-links">
-              <a href="#"><i className="fab fa-linkedin"></i></a>
-              <a href="#"><i className="fab fa-instagram"></i></a>
+              <a href="https://www.linkedin.com/company/marocup/" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-linkedin"></i>
+              </a>
+              <a href="https://www.instagram.com/marocup_?igsh=MW9mbWM1MWVhdHlhcg==" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-instagram"></i>
+              </a>
             </div>
           </div>
         </div>

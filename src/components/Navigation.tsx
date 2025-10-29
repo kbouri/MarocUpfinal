@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { translations } from '@/lib/translations';
@@ -47,7 +48,27 @@ export default function Navigation() {
       <div className="nav-container">
         <div className="nav-logo">
           <Link href="/">
-            <h2>MarocUp</h2>
+            <div style={{ position: 'relative', width: '200px', height: '65px', display: 'flex', alignItems: 'center' }}>
+              <Image 
+                src="/images/marocup-v2.png" 
+                alt="MarocUp Logo" 
+                width={200} 
+                height={65}
+                priority
+                style={{ objectFit: 'contain', height: '100%', width: 'auto', display: 'block' }}
+                onError={(e) => {
+                  // Si l'image ne charge pas, on affiche le texte
+                  const img = e.target as HTMLImageElement;
+                  if (img && img.parentElement) {
+                    img.style.display = 'none';
+                    const fallback = document.createElement('h2');
+                    fallback.textContent = 'MarocUp';
+                    fallback.style.cssText = 'color: var(--primary-red); font-weight: 700; font-size: 1.8rem; margin: 0; display: block;';
+                    img.parentElement.appendChild(fallback);
+                  }
+                }}
+              />
+            </div>
           </Link>
         </div>
         

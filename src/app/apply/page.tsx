@@ -5,11 +5,16 @@ import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
-import { supabase } from '@/lib/supabase';
+import { uploadFile, submitStartupApplication, submitAttendeeRegistration } from '@/lib/api';
+
+type ApplicationType = 'startup' | 'attendee' | null;
 
 export default function ApplyPage() {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState({
+  const [applicationType, setApplicationType] = useState<ApplicationType>(null);
+  
+  // État pour le formulaire startup
+  const [startupFormData, setStartupFormData] = useState({
     startupName: '',
     founders: '',
     email: '',
@@ -24,150 +29,132 @@ export default function ApplyPage() {
     additionalInfo: '',
     terms: false,
   });
+
+  // État pour le formulaire invité
+  const [attendeeFormData, setAttendeeFormData] = useState({
+    nomComplet: '',
+    email: '',
+    telephone: '',
+    entreprise: '',
+    poste: '',
+    secteurActivite: '',
+    raisonParticipation: '',
+    message: '',
+    terms: false,
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Handlers pour le formulaire startup
+  const handleStartupInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setStartupFormData(prev => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setStartupFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStartupFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     const fieldName = e.target.name as 'pitchDeck' | 'businessPlan';
-    setFormData(prev => ({ ...prev, [fieldName]: file }));
+    setStartupFormData(prev => ({ ...prev, [fieldName]: file }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handlers pour le formulaire invité
+  const handleAttendeeInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setAttendeeFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setAttendeeFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  // Soumission du formulaire startup
+  const handleStartupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
 
     try {
-      // Validate required fields
+      // Validation des champs requis
       const requiredFields = ['startupName', 'founders', 'email', 'pitchDescription', 'sector', 'country'];
       for (const field of requiredFields) {
-        if (!formData[field as keyof typeof formData]) {
+        if (!startupFormData[field as keyof typeof startupFormData]) {
           throw new Error(`Le champ ${field} est obligatoire`);
         }
       }
 
-      if (!formData.terms) {
+      if (!startupFormData.terms) {
         throw new Error('Vous devez accepter les conditions d\'utilisation');
       }
 
-      if (!formData.pitchDeck) {
+      if (!startupFormData.pitchDeck) {
         throw new Error('Le pitch deck est obligatoire');
       }
 
-      // Validate pitch deck file
-      if (formData.pitchDeck.size > 10 * 1024 * 1024) {
-        throw new Error('Le pitch deck ne doit pas dépasser 10MB');
+      // Validation du fichier pitch deck
+      if (startupFormData.pitchDeck.size > 50 * 1024 * 1024) {
+        throw new Error('Le pitch deck ne doit pas dépasser 50MB');
       }
 
-      if (formData.pitchDeck.type !== 'application/pdf') {
+      if (startupFormData.pitchDeck.type !== 'application/pdf') {
         throw new Error('Le pitch deck doit être un PDF');
       }
 
-      // Validate "other" sector field if selected
-      if (formData.sector === 'other' && !formData.otherSector.trim()) {
+      // Validation secteur "autre"
+      if (startupFormData.sector === 'other' && !startupFormData.otherSector.trim()) {
         throw new Error('Veuillez préciser votre secteur d\'activité');
       }
 
-      // Validate business plan if provided
-      if (formData.businessPlan) {
-        if (formData.businessPlan.size > 10 * 1024 * 1024) {
-          throw new Error('Le Business Plan ne doit pas dépasser 10MB');
+      // Validation business plan si fourni
+      if (startupFormData.businessPlan) {
+        if (startupFormData.businessPlan.size > 50 * 1024 * 1024) {
+          throw new Error('Le Business Plan ne doit pas dépasser 50MB');
         }
       }
 
-      // Generate unique filename for pitch deck
-      const timestamp = Date.now();
-      const sanitizedStartupName = formData.startupName.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const pitchDeckPath = `pitch-decks/${sanitizedStartupName}_${timestamp}.pdf`;
+      // Upload du pitch deck vers Cloudinary
+      const pitchDeckUrl = await uploadFile(startupFormData.pitchDeck);
 
-      // Upload pitch deck to Supabase Storage
-      const { data: pitchDeckUpload, error: pitchDeckError } = await supabase.storage
-        .from('candidatures-files')
-        .upload(pitchDeckPath, formData.pitchDeck, {
-          contentType: formData.pitchDeck.type,
-          upsert: false
-        });
-
-      if (pitchDeckError) {
-        throw new Error(`Erreur d'upload du pitch deck: ${pitchDeckError.message}`);
-      }
-
-      // Get public URL for pitch deck
-      const { data: pitchDeckUrlData } = supabase.storage
-        .from('candidatures-files')
-        .getPublicUrl(pitchDeckPath);
-
+      // Upload du business plan si fourni
       let businessPlanUrl = null;
-
-      // Upload business plan if provided
-      if (formData.businessPlan) {
-        const businessPlanExt = formData.businessPlan.name.split('.').pop();
-        const businessPlanPath = `business-plans/${sanitizedStartupName}_${timestamp}.${businessPlanExt}`;
-
-        const { data: businessPlanUpload, error: businessPlanError } = await supabase.storage
-          .from('candidatures-files')
-          .upload(businessPlanPath, formData.businessPlan, {
-            contentType: formData.businessPlan.type,
-            upsert: false
-          });
-
-        if (businessPlanError) {
-          throw new Error(`Erreur d'upload du business plan: ${businessPlanError.message}`);
-        }
-
-        // Get public URL for business plan
-        const { data: businessPlanUrlData } = supabase.storage
-          .from('candidatures-files')
-          .getPublicUrl(businessPlanPath);
-
-        businessPlanUrl = businessPlanUrlData.publicUrl;
+      if (startupFormData.businessPlan) {
+        businessPlanUrl = await uploadFile(startupFormData.businessPlan);
       }
 
-      // Add business plan info to additional info if provided
-      let additionalInfoText = formData.additionalInfo.trim();
+      // Ajouter l'info du business plan dans les infos complémentaires
+      let additionalInfoText = startupFormData.additionalInfo.trim();
       if (businessPlanUrl) {
         additionalInfoText += `\n\n[Business Plan URL: ${businessPlanUrl}]`;
       }
 
-      // Prepare data for Supabase
+      // Préparer les données pour l'API
       const applicationData = {
-        nom_startup: formData.startupName.trim(),
-        nom_fondateurs: formData.founders.trim(),
-        email: formData.email.trim(),
-        pitch_court: formData.pitchDescription.trim(),
-        secteur: formData.sector === 'other' ? formData.otherSector.trim() : formData.sector,
-        pays_residence: formData.country,
-        lien_prototype: formData.prototypeLink.trim() || null,
-        lien_video: formData.videoLink.trim() || null,
+        nom_startup: startupFormData.startupName.trim(),
+        nom_fondateurs: startupFormData.founders.trim(),
+        email: startupFormData.email.trim(),
+        pitch_court: startupFormData.pitchDescription.trim(),
+        secteur: startupFormData.sector === 'other' ? startupFormData.otherSector.trim() : startupFormData.sector,
+        pays_residence: startupFormData.country,
+        lien_prototype: startupFormData.prototypeLink.trim() || null,
+        lien_video: startupFormData.videoLink.trim() || null,
         informations_complementaires: additionalInfoText || null,
-        pitch_deck_url: pitchDeckUrlData.publicUrl,
+        pitch_deck_url: pitchDeckUrl,
+        business_plan_url: businessPlanUrl,
       };
 
-      // Submit to Supabase
-      const { error } = await supabase
-        .from('candidatures')
-        .insert([applicationData])
-        .select();
-
-      if (error) {
-        throw new Error(`Erreur Supabase: ${error.message}`);
-      }
+      // Envoyer via API route
+      await submitStartupApplication(applicationData);
 
       setSubmitStatus('success');
-      setFormData({
+      setStartupFormData({
         startupName: '',
         founders: '',
         email: '',
@@ -192,11 +179,71 @@ export default function ApplyPage() {
     }
   };
 
+  // Soumission du formulaire invité
+  const handleAttendeeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      // Validation des champs requis
+      if (!attendeeFormData.nomComplet.trim()) {
+        throw new Error('Le nom complet est obligatoire');
+      }
+      if (!attendeeFormData.email.trim()) {
+        throw new Error('L\'email est obligatoire');
+      }
+      if (!attendeeFormData.telephone.trim()) {
+        throw new Error('Le téléphone est obligatoire');
+      }
+      if (!attendeeFormData.terms) {
+        throw new Error('Vous devez accepter les conditions d\'utilisation');
+      }
+
+      // Préparer les données
+      const attendeeData = {
+        nomComplet: attendeeFormData.nomComplet.trim(),
+        email: attendeeFormData.email.trim(),
+        telephone: attendeeFormData.telephone.trim(),
+        entreprise: attendeeFormData.entreprise.trim() || null,
+        poste: attendeeFormData.poste.trim() || null,
+        secteurActivite: attendeeFormData.secteurActivite || null,
+        raisonParticipation: attendeeFormData.raisonParticipation.trim() || null,
+        message: attendeeFormData.message.trim() || null,
+      };
+
+      // Envoyer via API route
+      await submitAttendeeRegistration(attendeeData);
+
+      setSubmitStatus('success');
+      setAttendeeFormData({
+        nomComplet: '',
+        email: '',
+        telephone: '',
+        entreprise: '',
+        poste: '',
+        secteurActivite: '',
+        raisonParticipation: '',
+        message: '',
+        terms: false,
+      });
+
+    } catch (error) {
+      console.error('Erreur:', error);
+      setSubmitStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Une erreur est survenue lors de votre inscription.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Si aucun type n'est sélectionné, afficher le menu de sélection
+  if (!applicationType) {
   return (
     <>
       <Navigation />
       
-      {/* Page Header */}
       <section className="page-header">
         <div className="container">
           <h1>{t('apply-title')}</h1>
@@ -204,42 +251,93 @@ export default function ApplyPage() {
         </div>
       </section>
 
-      {/* Call for Applications */}
-      <section className="call-section">
+        <section className="eligibility-section">
         <div className="container">
-          <div className="call-box">
-            <div className="call-content">
-              <h2 dangerouslySetInnerHTML={{ __html: t('apply-call-title') }}></h2>
-              <p className="deadline" dangerouslySetInnerHTML={{ __html: t('apply-deadline') }}></p>
-              <p>{t('apply-call-desc')}</p>
+            <h2 className="section-title">{t('apply-select-type-title')}</h2>
+            
+            <div className="eligibility-grid" style={{ maxWidth: '800px', margin: '0 auto' }}>
+              {/* Option Startup */}
+              <div 
+                className="eligibility-item" 
+                onClick={() => setApplicationType('startup')}
+                style={{ cursor: 'pointer', transition: 'transform 0.3s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div className="eligibility-icon">
+                  <i className="fas fa-rocket"></i>
+                </div>
+                <h3>{t('apply-startup-title')}</h3>
+                <p>{t('apply-startup-desc')}</p>
+                <button className="btn btn-primary" style={{ marginTop: '1rem' }}>
+                  {t('apply-startup-button')}
+                </button>
+              </div>
+
+              {/* Option Invité */}
+              <div 
+                className="eligibility-item"
+                onClick={() => setApplicationType('attendee')}
+                style={{ cursor: 'pointer', transition: 'transform 0.3s ease' }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div className="eligibility-icon">
+                  <i className="fas fa-user"></i>
+                </div>
+                <h3>{t('apply-attendee-title')}</h3>
+                <p>{t('apply-attendee-desc')}</p>
+                <button className="btn btn-primary" style={{ marginTop: '1rem' }}>
+                  {t('apply-attendee-button')}
+                </button>
+              </div>
             </div>
           </div>
+        </section>
+
+        <Footer />
+      </>
+    );
+  }
+
+  // Formulaire Startup
+  if (applicationType === 'startup') {
+    return (
+      <>
+        <Navigation />
+        
+        <section className="page-header">
+          <div className="container">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <button 
+                onClick={() => setApplicationType(null)}
+                className="btn"
+                style={{ background: '#f0f0f0', border: 'none' }}
+              >
+                <i className="fas fa-arrow-left"></i> {t('apply-back')}
+              </button>
+              <h1 style={{ margin: 0 }}>{t('apply-title')}</h1>
+            </div>
+            <p className="lead">{t('apply-startup-form-title')}</p>
         </div>
       </section>
 
-      {/* Eligibility Section */}
       <section className="eligibility-section">
         <div className="container">
           <h2 className="section-title">{t('apply-eligibility-title')}</h2>
           <div className="eligibility-grid">
             <div className="eligibility-item">
-              <div className="eligibility-icon">
-                <i className="fas fa-user-check"></i>
-              </div>
+                <div className="eligibility-icon"><i className="fas fa-user-check"></i></div>
               <h3>{t('apply-eligibility1-title')}</h3>
               <p>{t('apply-eligibility1-desc')}</p>
             </div>
             <div className="eligibility-item">
-              <div className="eligibility-icon">
-                <i className="fas fa-seedling"></i>
-              </div>
+                <div className="eligibility-icon"><i className="fas fa-seedling"></i></div>
               <h3>{t('apply-eligibility2-title')}</h3>
               <p>{t('apply-eligibility2-desc')}</p>
             </div>
             <div className="eligibility-item">
-              <div className="eligibility-icon">
-                <i className="fas fa-globe"></i>
-              </div>
+                <div className="eligibility-icon"><i className="fas fa-globe"></i></div>
               <h3>{t('apply-eligibility3-title')}</h3>
               <p>{t('apply-eligibility3-desc')}</p>
             </div>
@@ -247,38 +345,50 @@ export default function ApplyPage() {
         </div>
       </section>
 
-      {/* Application Form */}
       <section className="form-section">
         <div className="container">
-          <h2 className="section-title">{t('apply-form-title')}</h2>
-          
-          {submitStatus === 'success' && (
-            <div className="form-messages">
-              <div className="alert alert-success">
+          {submitStatus === 'success' ? (
+            <div className="success-screen">
+              <div className="success-icon">
                 <i className="fas fa-check-circle"></i>
-                <span>{t('apply-success')}</span>
               </div>
+              <h2 className="success-title">{t('apply-success')}</h2>
+              <p className="success-message-text">
+                {t('apply-success-detail')}
+              </p>
+              <button 
+                onClick={() => {
+                  setApplicationType(null);
+                  setSubmitStatus('idle');
+                }}
+                className="btn btn-primary"
+                style={{ marginTop: '2rem' }}
+              >
+                {t('apply-back-to-home')}
+              </button>
             </div>
-          )}
+          ) : (
+            <>
+              <h2 className="section-title">{t('apply-form-title')}</h2>
+              
+              {submitStatus === 'error' && (
+                <div className="form-messages">
+                  <div className="alert alert-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    <span>{errorMessage}</span>
+                  </div>
+                </div>
+              )}
 
-          {submitStatus === 'error' && (
-            <div className="form-messages">
-              <div className="alert alert-error">
-                <i className="fas fa-exclamation-circle"></i>
-                <span>{errorMessage}</span>
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="application-form">
+              <form onSubmit={handleStartupSubmit} className="application-form">
             <div className="form-group">
               <label htmlFor="startupName">{t('apply-field-startup')}</label>
               <input
                 type="text"
                 id="startupName"
                 name="startupName"
-                value={formData.startupName}
-                onChange={handleInputChange}
+                  value={startupFormData.startupName}
+                  onChange={handleStartupInputChange}
                 required
               />
             </div>
@@ -289,8 +399,8 @@ export default function ApplyPage() {
                 type="text"
                 id="founders"
                 name="founders"
-                value={formData.founders}
-                onChange={handleInputChange}
+                  value={startupFormData.founders}
+                  onChange={handleStartupInputChange}
                 placeholder={t('apply-placeholder-founders')}
                 required
               />
@@ -302,8 +412,8 @@ export default function ApplyPage() {
                 type="email"
                 id="email"
                 name="email"
-                value={formData.email}
-                onChange={handleInputChange}
+                value={startupFormData.email}
+                onChange={handleStartupInputChange}
                 required
               />
             </div>
@@ -313,15 +423,15 @@ export default function ApplyPage() {
               <textarea
                 id="pitchDescription"
                 name="pitchDescription"
-                value={formData.pitchDescription}
-                onChange={handleInputChange}
+                  value={startupFormData.pitchDescription}
+                  onChange={handleStartupInputChange}
                 rows={4}
                 maxLength={500}
                 placeholder={t('apply-placeholder-pitch')}
                 required
               />
               <div className="char-counter">
-                {formData.pitchDescription.length}/500
+                  {startupFormData.pitchDescription.length}/500
               </div>
             </div>
 
@@ -330,8 +440,8 @@ export default function ApplyPage() {
               <select
                 id="sector"
                 name="sector"
-                value={formData.sector}
-                onChange={handleInputChange}
+                  value={startupFormData.sector}
+                  onChange={handleStartupInputChange}
                 required
               >
                 <option value="">{t('apply-select-sector')}</option>
@@ -352,15 +462,15 @@ export default function ApplyPage() {
               </select>
             </div>
 
-            {formData.sector === 'other' && (
+              {startupFormData.sector === 'other' && (
               <div className="form-group">
                 <label htmlFor="otherSector">{t('apply-field-other-sector')}</label>
                 <input
                   type="text"
                   id="otherSector"
                   name="otherSector"
-                  value={formData.otherSector}
-                  onChange={handleInputChange}
+                    value={startupFormData.otherSector}
+                    onChange={handleStartupInputChange}
                   placeholder={t('apply-placeholder-other-sector')}
                   required
                 />
@@ -373,8 +483,8 @@ export default function ApplyPage() {
                 type="url"
                 id="prototypeLink"
                 name="prototypeLink"
-                value={formData.prototypeLink}
-                onChange={handleInputChange}
+                  value={startupFormData.prototypeLink}
+                  onChange={handleStartupInputChange}
                 placeholder={t('apply-placeholder-prototype')}
               />
             </div>
@@ -387,12 +497,12 @@ export default function ApplyPage() {
                   id="pitchDeck"
                   name="pitchDeck"
                   accept=".pdf"
-                  onChange={handleFileChange}
+                    onChange={handleStartupFileChange}
                   required
                 />
                 <label htmlFor="pitchDeck" className="file-label">
                   <i className="fas fa-upload"></i>
-                  <span>{formData.pitchDeck ? formData.pitchDeck.name : t('apply-file-choose')}</span>
+                    <span>{startupFormData.pitchDeck ? startupFormData.pitchDeck.name : t('apply-file-choose')}</span>
                 </label>
               </div>
             </div>
@@ -405,11 +515,11 @@ export default function ApplyPage() {
                   id="businessPlan"
                   name="businessPlan"
                   accept=".pdf,.doc,.docx,.xls,.xlsx"
-                  onChange={handleFileChange}
+                    onChange={handleStartupFileChange}
                 />
                 <label htmlFor="businessPlan" className="file-label">
                   <i className="fas fa-upload"></i>
-                  <span>{formData.businessPlan ? formData.businessPlan.name : t('apply-file-choose')}</span>
+                    <span>{startupFormData.businessPlan ? startupFormData.businessPlan.name : t('apply-file-choose')}</span>
                 </label>
               </div>
             </div>
@@ -420,8 +530,8 @@ export default function ApplyPage() {
                 type="url"
                 id="videoLink"
                 name="videoLink"
-                value={formData.videoLink}
-                onChange={handleInputChange}
+                  value={startupFormData.videoLink}
+                  onChange={handleStartupInputChange}
                 placeholder={t('apply-placeholder-video')}
               />
             </div>
@@ -431,8 +541,8 @@ export default function ApplyPage() {
               <select
                 id="country"
                 name="country"
-                value={formData.country}
-                onChange={handleInputChange}
+                  value={startupFormData.country}
+                  onChange={handleStartupInputChange}
                 required
               >
                 <option value="">{t('apply-select-country')}</option>
@@ -454,8 +564,8 @@ export default function ApplyPage() {
               <textarea
                 id="additionalInfo"
                 name="additionalInfo"
-                value={formData.additionalInfo}
-                onChange={handleInputChange}
+                  value={startupFormData.additionalInfo}
+                  onChange={handleStartupInputChange}
                 rows={3}
                 placeholder={t('apply-placeholder-additional')}
               />
@@ -466,8 +576,8 @@ export default function ApplyPage() {
                 <input
                   type="checkbox"
                   name="terms"
-                  checked={formData.terms}
-                  onChange={handleInputChange}
+                    checked={startupFormData.terms}
+                    onChange={handleStartupInputChange}
                   required
                 />
                 <span dangerouslySetInnerHTML={{ __html: t('apply-terms') }}></span>
@@ -490,16 +600,221 @@ export default function ApplyPage() {
               </button>
             </div>
           </form>
+            </>
+          )}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <CTASection
-        title={t('apply-cta-title')}
-        description={t('apply-cta-desc')}
-        buttonText={t('apply-cta-button')}
-        buttonHref="mailto:contact@marocup.com"
-      />
+        <Footer />
+      </>
+    );
+  }
+
+  // Formulaire Invité
+  return (
+    <>
+      <Navigation />
+      
+      <section className="page-header">
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+            <button 
+              onClick={() => setApplicationType(null)}
+              className="btn"
+              style={{ background: '#f0f0f0', border: 'none' }}
+            >
+                <i className="fas fa-arrow-left"></i> {t('apply-back')}
+            </button>
+            <h1 style={{ margin: 0 }}>{t('apply-attendee-page-title')}</h1>
+          </div>
+          <p className="lead">{t('apply-attendee-page-subtitle')}</p>
+        </div>
+      </section>
+
+      <section className="call-section">
+        <div className="container">
+          <div className="call-box">
+            <div className="call-content">
+              <h2>{t('apply-attendee-call-title')}</h2>
+              <p>{t('apply-attendee-call-desc')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="form-section">
+        <div className="container">
+          {submitStatus === 'success' ? (
+            <div className="success-screen">
+              <div className="success-icon">
+                <i className="fas fa-check-circle"></i>
+              </div>
+              <h2 className="success-title">{t('apply-attendee-success')}</h2>
+              <p className="success-message-text">
+                {t('apply-attendee-success-detail')}
+              </p>
+              <button 
+                onClick={() => {
+                  setApplicationType(null);
+                  setSubmitStatus('idle');
+                }}
+                className="btn btn-primary"
+                style={{ marginTop: '2rem' }}
+              >
+                {t('apply-back-to-home')}
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2 className="section-title">{t('apply-attendee-form-title')}</h2>
+              
+              {submitStatus === 'error' && (
+                <div className="form-messages">
+                  <div className="alert alert-error">
+                    <i className="fas fa-exclamation-circle"></i>
+                    <span>{errorMessage}</span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleAttendeeSubmit} className="application-form">
+            <div className="form-group">
+              <label htmlFor="nomComplet">{t('apply-attendee-field-nom')}</label>
+              <input
+                type="text"
+                id="nomComplet"
+                name="nomComplet"
+                value={attendeeFormData.nomComplet}
+                onChange={handleAttendeeInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">{t('apply-attendee-field-email')}</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={attendeeFormData.email}
+                onChange={handleAttendeeInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="telephone">{t('apply-attendee-field-phone')}</label>
+              <input
+                type="tel"
+                id="telephone"
+                name="telephone"
+                value={attendeeFormData.telephone}
+                onChange={handleAttendeeInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="entreprise">{t('apply-attendee-field-company')}</label>
+              <input
+                type="text"
+                id="entreprise"
+                name="entreprise"
+                value={attendeeFormData.entreprise}
+                onChange={handleAttendeeInputChange}
+                placeholder={t('apply-attendee-placeholder-company')}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="poste">{t('apply-attendee-field-poste')}</label>
+              <input
+                type="text"
+                id="poste"
+                name="poste"
+                value={attendeeFormData.poste}
+                onChange={handleAttendeeInputChange}
+                placeholder={t('apply-attendee-placeholder-poste')}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="secteurActivite">{t('apply-attendee-field-secteur')}</label>
+              <select
+                id="secteurActivite"
+                name="secteurActivite"
+                value={attendeeFormData.secteurActivite}
+                onChange={handleAttendeeInputChange}
+              >
+                <option value="">{t('apply-attendee-select-secteur')}</option>
+                <option value="tech">Tech</option>
+                <option value="finance">Finance</option>
+                <option value="education">Éducation</option>
+                <option value="healthcare">Santé</option>
+                <option value="consulting">Consulting</option>
+                <option value="media">Média</option>
+                <option value="investor">Investisseur</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="raisonParticipation">{t('apply-attendee-field-raison')}</label>
+              <textarea
+                id="raisonParticipation"
+                name="raisonParticipation"
+                value={attendeeFormData.raisonParticipation}
+                onChange={handleAttendeeInputChange}
+                rows={3}
+                placeholder={t('apply-attendee-placeholder-raison')}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="message">{t('apply-attendee-field-message')}</label>
+              <textarea
+                id="message"
+                name="message"
+                value={attendeeFormData.message}
+                onChange={handleAttendeeInputChange}
+                rows={3}
+                placeholder={t('apply-attendee-placeholder-message')}
+              />
+            </div>
+
+            <div className="form-group checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="terms"
+                  checked={attendeeFormData.terms}
+                  onChange={handleAttendeeInputChange}
+                  required
+                />
+                <span dangerouslySetInnerHTML={{ __html: t('apply-terms') }}></span>
+              </label>
+            </div>
+
+            <div className="form-submit">
+              <button type="submit" className="btn btn-primary btn-large" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin"></i>
+                    <span>Envoi en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-paper-plane"></i>
+                    <span>{t('apply-attendee-submit')}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+            </>
+          )}
+        </div>
+      </section>
 
       <Footer />
     </>

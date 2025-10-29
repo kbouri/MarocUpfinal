@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -8,7 +7,6 @@ import CTASection from '@/components/CTASection';
 
 export default function MentorsPage() {
   const { t } = useTranslation();
-  const [activeFilter, setActiveFilter] = useState('all');
 
   const mentors = [
     {
@@ -114,28 +112,6 @@ export default function MentorsPage() {
     },
   ];
 
-  const filters = [
-    { key: 'all', label: t('mentors-filter-all') },
-    { key: 'tech', label: t('mentors-filter-tech') },
-    { key: 'product', label: t('mentors-filter-product') },
-    { key: 'business', label: t('mentors-filter-business') },
-    { key: 'finance', label: t('mentors-filter-finance') },
-    { key: 'marketing', label: t('mentors-filter-marketing') },
-    { key: 'legal', label: t('mentors-filter-legal') },
-    { key: 'agritech', label: t('mentors-filter-agritech') },
-    { key: 'marketplace', label: t('mentors-filter-marketplace') },
-    { key: 'ai', label: t('mentors-filter-ai') },
-    { key: 'fintech', label: t('mentors-filter-fintech') },
-  ];
-
-  const filteredMentors = mentors.filter(mentor => 
-    activeFilter === 'all' || mentor.tags.includes(activeFilter)
-  );
-
-  const filteredJury = jury.filter(member => 
-    activeFilter === 'all' || member.tags.includes(activeFilter)
-  );
-
   return (
     <>
       <Navigation />
@@ -148,26 +124,6 @@ export default function MentorsPage() {
         </div>
       </section>
 
-      {/* Filter Section */}
-      <section className="filter-section">
-        <div className="container">
-          <div className="filter-controls">
-            <h3>{t('mentors-filter-title')}</h3>
-            <div className="filter-buttons">
-              {filters.map((filter) => (
-                <button
-                  key={filter.key}
-                  className={`filter-btn ${activeFilter === filter.key ? 'active' : ''}`}
-                  onClick={() => setActiveFilter(filter.key)}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Mentors Section */}
       <section className="mentors-section">
         <div className="container">
@@ -175,7 +131,7 @@ export default function MentorsPage() {
           <p className="section-subtitle">{t('mentors-day1-subtitle')}</p>
           
           <div className="mentors-grid">
-            {filteredMentors.map((mentor) => (
+            {mentors.map((mentor) => (
               <div key={mentor.id} className="mentor-card" data-expertise={mentor.tags.join(',')}>
                 <div className="mentor-image">
                   <img 
@@ -191,7 +147,7 @@ export default function MentorsPage() {
                   <div className="mentor-tags">
                     {mentor.tags.map((tag) => (
                       <span key={tag} className="tag">
-                        {filters.find(f => f.key === tag)?.label || tag}
+                        {tag}
                       </span>
                     ))}
                   </div>
@@ -209,7 +165,7 @@ export default function MentorsPage() {
           <p className="section-subtitle">{t('jury-day2-subtitle')}</p>
           
           <div className="jury-grid">
-            {filteredJury.map((member) => (
+            {jury.map((member) => (
               <div key={member.id} className="jury-card" data-expertise={member.tags.join(',')}>
                 <div className="jury-image">
                   <img 
@@ -225,7 +181,7 @@ export default function MentorsPage() {
                   <div className="jury-tags">
                     {member.tags.map((tag) => (
                       <span key={tag} className="tag">
-                        {filters.find(f => f.key === tag)?.label || tag}
+                        {tag}
                       </span>
                     ))}
                   </div>

@@ -83,7 +83,14 @@ export default function InfoPage() {
                 <i className="fas fa-share-alt"></i>
               </div>
               <h3>{t('info-social-title')}</h3>
-              <p dangerouslySetInnerHTML={{ __html: t('info-social-platforms') }}></p>
+              <p>
+                <a href="https://www.linkedin.com/company/marocup/" target="_blank" rel="noopener noreferrer" style={{ marginRight: '1rem' }}>
+                  <i className="fab fa-linkedin"></i> LinkedIn
+                </a>
+                <a href="https://www.instagram.com/marocup_?igsh=MW9mbWM1MWVhdHlhcg==" target="_blank" rel="noopener noreferrer">
+                  <i className="fab fa-instagram"></i> Instagram
+                </a>
+              </p>
               <p>{t('info-social-desc')}</p>
             </div>
           </div>

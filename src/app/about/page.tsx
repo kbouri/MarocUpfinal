@@ -187,7 +187,7 @@ export default function AboutPage() {
             <div className="mission-text">
               <h2>{t('about-mission-title')}</h2>
               <p className="mission-description">{t('about-mission-p1')}</p>
-              <p>{t('about-mission-p2')}</p>
+              <p style={{ color: '#000000' }}>{t('about-mission-p2')}</p>
             </div>
             <div className="mission-image">
               <div className="image-placeholder">
@@ -212,7 +212,7 @@ export default function AboutPage() {
               <div className="impact-label">{t('about-mentors')}</div>
             </div>
             <div className="impact-item">
-              <div className="impact-number">200+</div>
+              <div className="impact-number">+200</div>
               <div className="impact-label">{t('about-connections')}</div>
             </div>
             <div className="impact-item">

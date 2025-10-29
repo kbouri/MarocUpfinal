@@ -111,6 +111,26 @@ p {
   margin: 0;
 }
 
+.nav-logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-logo a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+
+.nav-logo img {
+  height: 60px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
 .nav-menu {
   display: flex;
   list-style: none;
@@ -434,7 +454,7 @@ p {
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 1.5rem;
-  color: var(--text-dark);
+  color: #000000;
 }
 
 .mission-image {
@@ -1014,6 +1034,51 @@ p {
 .success-message i {
   font-size: 4rem;
   margin-bottom: 1rem;
+}
+
+.success-screen {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.success-icon {
+  font-size: 5rem;
+  color: var(--primary-green);
+  margin-bottom: 2rem;
+}
+
+.success-icon i {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-title {
+  color: var(--primary-green);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.success-message-text {
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
 }
 
 /* Form Messages Styles */
