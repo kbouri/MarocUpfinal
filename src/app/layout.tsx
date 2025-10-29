@@ -14,14 +14,8 @@ export const metadata: Metadata = {
   description: 'MarocUp est un événement dédié aux startups early-stage fondées par des Marocains. Rejoignez-nous pour 2 jours d\'accélération intensive avec mentoring personnalisé, concours de pitch & récompense et networking.',
   keywords: 'startup Morocco, early-stage, Moroccan diaspora, pitch competition, mentoring, Rabat, entrepreneurship',
   icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/marocup-icon.png', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/marocup-icon.png', type: 'image/png' },
-    ],
+    icon: '/marocup-icon.png',
+    apple: '/marocup-icon.png',
   },
 };
 
