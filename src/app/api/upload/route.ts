@@ -19,7 +19,11 @@ export async function POST(request: NextRequest) {
     const resourceType = isPDF ? 'raw' : 'auto'; // 'raw' pour PDF, 'auto' pour autres
     
     // Upload vers Cloudinary
-    const uploadResult: any = await new Promise((resolve, reject) => {
+    interface UploadResult {
+      secure_url: string;
+    }
+    
+    const uploadResult = await new Promise<UploadResult>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { 
           folder: 'marocup-uploads', 
@@ -28,15 +32,20 @@ export async function POST(request: NextRequest) {
         },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else if (result && 'secure_url' in result) {
+            resolve(result as UploadResult);
+          } else {
+            reject(new Error('Invalid upload result'));
+          }
         }
       ).end(buffer);
     });
 
     return NextResponse.json({ url: uploadResult.secure_url });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: error.message || 'Upload failed' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 

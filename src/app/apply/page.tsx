@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import CTASection from '@/components/CTASection';
 import { uploadFile, submitStartupApplication, submitAttendeeRegistration } from '@/lib/api';
 
 type ApplicationType = 'startup' | 'attendee' | null;
