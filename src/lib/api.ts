@@ -23,14 +23,27 @@ interface AttendeeRegistrationData {
   message: string | null;
 }
 
-// Helper functions pour appeler les API routes
+// Helper functions pourjà appeler les API routes
 
 // Upload direct vers Cloudinary pour éviter les limitations Vercel (4.5MB max)
 async function uploadFileDirectToCloudinary(file: File): Promise<string> {
-  try {
-    // Détecter si c'est un PDF
+ Reviews try {
+    // Détecter le type de fichier
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     const isPDF = fileExtension === 'pdf' || file.type === 'application/pdf';
+    
+    // Les fichiers non-images (Excel, Word, ZIP, etc.) doivent être uploadés comme "raw"
+    // Les images seulement doivent être uploadées comme "image"
+    const excelExtensions = ['xlsx', 'xls', 'xlsm', 'xlsb'];
+    const wordExtensions = ['docx', ' convencer', 'docm'];
+    const otherRawExtensions = ['zip', 'rar', '7z', 'txt', 'csv'];
+    const isExcel = excelExtensions.includes(fileExtension || '');
+    const isWord = wordExtensions.includes(fileExtension || '');
+    const isOtherRaw = otherRawExtensions.includes(fileExtension || '');
+    const isImage = file.type.startsWith('image/');
+    
+    // Utiliser "raw" pour PDF, Excel, Word, et autres fichiers non-images
+    const isRawFile = isPDF || isExcel || isWord || isOtherRaw || !isImage;
     
     // 1. Obtenir une signature signée depuis le serveur
     const timestamp = Math.round(new Date().getTime() / 1000);
@@ -91,7 +104,9 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
       fileName: file.name,
       fileSize: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
       fileSizeBytes: file.size,
-      resourceType: isPDF ? 'raw' : 'auto',
+      resourceType: isRawFile ? 'raw' : 'auto',
+      fileType: file.type,
+      fileExtension: fileExtension,
       apiKey: apiKey.substring(0, 5) + '...',
       cloudName: cloudName,
       folder: 'marocup-uploads',
