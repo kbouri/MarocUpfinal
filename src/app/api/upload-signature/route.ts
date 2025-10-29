@@ -18,7 +18,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { timestamp, folder = 'marocup-uploads', resource_type = 'raw' } = body;
+    let { timestamp, folder = 'marocup-uploads', resource_type = 'raw' } = body;
+    
+    // S'assurer que timestamp est un nombre puis converti en string
+    if (typeof timestamp !== 'number') {
+      timestamp = parseInt(timestamp, 10);
+    }
+    
+    // S'assurer que folder est une string
+    folder = String(folder);
 
     // Générer une signature manuelle pour Cloudinary
     // IMPORTANT: Les paramètres doivent être triés ALPHABÉTIQUEMENT et formatés comme query string
@@ -28,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Créer un objet avec les paramètres à signer (sans resource_type, car il est dans l'URL)
     const paramsToSign: Record<string, string> = {
       folder: folder,
-      timestamp: timestamp.toString(),
+      timestamp: String(timestamp),
     };
     
     // Trier les clés alphabétiquement et créer la query string
@@ -39,14 +47,17 @@ export async function POST(request: NextRequest) {
     
     // Générer la signature SHA1 : queryString + apiSecret
     // Exemple: sha1("folder=marocup-uploads&timestamp=1761768784" + apiSecret)
+    const stringToSign = queryString + apiSecret;
     const signature = crypto
       .createHash('sha1')
-      .update(queryString + apiSecret)
+      .update(stringToSign)
       .digest('hex');
     
     console.log('✅ Signature generated manually:', { 
       queryString,
-      signature: signature.substring(0, 10) + '...',
+      stringToSignLength: stringToSign.length,
+      signature: signature,
+      signatureLength: signature.length,
       timestamp, 
       folder,
     });
