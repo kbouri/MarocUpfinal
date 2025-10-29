@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!connectionString) {
       // Debug: voir quelles variables d'environnement sont disponibles
       const availableEnvKeys = Object.keys(process.env).filter(k => 
-        k.includes('DATABASE') || k.includes('DB')会不会 || k.includes('POSTGRES')
+        k.includes('DATABASE') || k.includes('DB') || k.includes('POSTGRES')
       );
       console.error('❌ DATABASE_URL manquante. Variables disponibles:', {
         hasDatabaseUrl: !!process.env.DATABASE_URL,
