@@ -140,15 +140,15 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      let errorDetails: any = null;
-      let parsedError = null;
+      let errorDetails: unknown = null;
+      let parsedError: unknown = null;
       
       // Essayer de parser le JSON
       if (errorText && errorText.trim()) {
         try {
           parsedError = JSON.parse(errorText);
-          errorDetails = parsedError;
-        } catch (parseError) {
+          errorDetails = parsedError as unknown;
+        } catch {
           // Si ce n'est pas du JSON, garder le texte brut
           errorDetails = errorText;
         }
@@ -157,7 +157,7 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
       }
       
       // Log détaillé pour debug
-      const errorInfo: any = {
+      const errorInfo: Record<string, unknown> = {
         status: uploadResponse.status,
         statusText: uploadResponse.statusText,
         url: uploadUrl,
@@ -176,13 +176,17 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
       
       // Extraire le message d'erreur
       let errorMsg = 'Unknown error';
-      if (parsedError?.error?.message) {
-        errorMsg = parsedError.error.message;
-      } else if (parsedError?.message) {
-        errorMsg = parsedError.message;
+      if (
+        typeof parsedError === 'object' && parsedError !== null && 'error' in parsedError &&
+        typeof (parsedError as any).error === 'object' && (parsedError as any).error !== null &&
+        'message' in (parsedError as any).error
+      ) {
+        errorMsg = String((parsedError as any).error.message);
+      } else if (typeof parsedError === 'object' && parsedError !== null && 'message' in parsedError) {
+        errorMsg = String((parsedError as any).message);
       } else if (typeof errorDetails === 'string' && errorDetails) {
         errorMsg = errorDetails.substring(0, 200);
-      } else if (errorDetails && typeof errorDetails === 'object' && Object.keys(errorDetails).length > 0) {
+      } else if (typeof errorDetails === 'object' && errorDetails !== null && Object.keys(errorDetails as object).length > 0) {
         errorMsg = JSON.stringify(errorDetails);
       } else {
         errorMsg = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
