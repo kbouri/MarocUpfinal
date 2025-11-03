@@ -4,6 +4,7 @@ import { useTranslation } from '@/contexts/TranslationContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CTASection from '@/components/CTASection';
+import Image from 'next/image';
 
 export default function MentorsPage() {
   const { t } = useTranslation();
@@ -134,10 +135,13 @@ export default function MentorsPage() {
             {mentors.map((mentor) => (
               <div key={mentor.id} className="mentor-card" data-expertise={mentor.tags.join(',')}>
                 <div className="mentor-image">
-                  <img 
-                    src="/images/question-mark.svg" 
-                    alt="Annonce imminente" 
+                  <Image
+                    src="/images/question-mark.svg"
+                    alt="Annonce imminente"
                     className="mentor-avatar"
+                    width={120}
+                    height={120}
+                    unoptimized
                   />
                 </div>
                 <div className="mentor-info">
@@ -168,10 +172,13 @@ export default function MentorsPage() {
             {jury.map((member) => (
               <div key={member.id} className="jury-card" data-expertise={member.tags.join(',')}>
                 <div className="jury-image">
-                  <img 
-                    src="/images/question-mark.svg" 
-                    alt="Annonce imminente" 
+                  <Image
+                    src="/images/question-mark.svg"
+                    alt="Annonce imminente"
                     className="jury-avatar"
+                    width={120}
+                    height={120}
+                    unoptimized
                   />
                 </div>
                 <div className="jury-info">

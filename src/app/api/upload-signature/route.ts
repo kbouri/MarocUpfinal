@@ -10,88 +10,53 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
     
-    // Debug: vérifier les variables d'environnement
-    console.log('🔍 Cloudinary env check:', {
-      hasCloudName: !!cloudName,
-      hasApiKey: !!apiKey,
-      hasApiSecret: !!apiSecret,
-      cloudNameLength: cloudName?.length || 0,
-      apiKeyLength: apiKey?.length || 0,
-      apiSecretLength: apiSecret?.length || 0,
-    });
-    
     if (!cloudName || !apiKey || !apiSecret) {
-      console.error('❌ Cloudinary environment variables missing!');
       return NextResponse.json(
-        { 
-          error: 'Cloudinary configuration missing',
-          debug: {
-            hasCloudName: !!cloudName,
-            hasApiKey: !!apiKey,
-            hasApiSecret: !!apiSecret
-          }
-        },
+        { error: 'Cloudinary configuration missing' },
         { status: 500 }
       );
     }
 
     const body = await request.json();
-    let { timestamp, folder = 'marocup-uploads', resource_type = 'raw' } = body;
-    
-    // S'assurer que timestamp est un nombre puis converti en string
-    if (typeof timestamp !== 'number') {
-      timestamp = parseInt(timestamp, 10);
-    }
-    
-    // S'assurer que folder est une string
-    folder = String(folder);
 
-    // Générer une signature manuelle pour Cloudinary
-    // IMPORTANT: Les paramètres doivent être triés ALPHABÉTIQUEMENT et formatés comme query string
-    // Format attendu par Cloudinary: "folder=marocup-uploads&timestamp=1234567890"
-    // Puis on fait SHA1 de cette string + apiSecret
-    
-    // Créer un objet avec les paramètres à signer (sans resource_type, car il est dans l'URL)
-    // IMPORTANT: Tous les paramètres utilisés dans FormData DOIVENT être dans la signature
+    // Immuables
+    const { folder = 'marocup-uploads', resource_type = 'raw' } = body as {
+      folder?: string;
+      resource_type?: string;
+      timestamp?: number | string;
+    };
+
+    // Normaliser le timestamp (mutable)
+    let timestamp: number =
+      typeof (body as { timestamp?: unknown }).timestamp === 'number'
+        ? (body as { timestamp: number }).timestamp
+        : parseInt(String((body as { timestamp?: unknown }).timestamp), 10);
+
+    // Ne pas réassigner `folder`
+    const normalizedFolder = String(folder);
+
+    // Générer une signature manuelle
     const paramsToSign: Record<string, string> = {
-      access_mode: 'public', // Ordre alphabétique: access_mode avant folder
-      folder: folder,
+      access_mode: 'public',
+      folder: normalizedFolder,
       timestamp: String(timestamp),
     };
-    
-    // Trier les clés alphabétiquement et créer la query string
+
     const sortedKeys = Object.keys(paramsToSign).sort();
-    const queryString = sortedKeys
-      .map(key => `${key}=${paramsToSign[key]}`)
-      .join('&');
-    
-    // Générer la signature SHA1 : queryString + apiSecret
-    // Exemple: sha1("folder=marocup-uploads&timestamp=1761768784" + apiSecret)
+    const queryString = sortedKeys.map(key => `${key}=${paramsToSign[key]}`).join('&');
+
     const stringToSign = queryString + apiSecret;
-    const signature = crypto
-      .createHash('sha1')
-      .update(stringToSign)
-      .digest('hex');
-    
-    console.log('✅ Signature generated manually:', { 
-      queryString,
-      stringToSignLength: stringToSign.length,
-      signature: signature,
-      signatureLength: signature.length,
-      timestamp, 
-      folder,
-    });
+    const signature = crypto.createHash('sha1').update(stringToSign).digest('hex');
 
     return NextResponse.json({
       signature,
       apiKey,
       cloudName,
       timestamp,
-      folder,
+      folder: normalizedFolder,
       resource_type: resource_type || 'raw',
     });
   } catch (error) {
-    console.error('Signature generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate upload signature' },
       { status: 500 }

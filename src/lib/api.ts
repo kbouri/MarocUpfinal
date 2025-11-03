@@ -175,22 +175,23 @@ async function uploadFileDirectToCloudinary(file: File): Promise<string> {
       console.error('❌ Cloudinary upload error:', errorInfo);
       
       // Extraire le message d'erreur
-      let errorMsg = 'Unknown error';
-      if (
-        typeof parsedError === 'object' && parsedError !== null && 'error' in parsedError &&
-        typeof (parsedError as any).error === 'object' && (parsedError as any).error !== null &&
-        'message' in (parsedError as any).error
-      ) {
-        errorMsg = String((parsedError as any).error.message);
-      } else if (typeof parsedError === 'object' && parsedError !== null && 'message' in parsedError) {
-        errorMsg = String((parsedError as any).message);
-      } else if (typeof errorDetails === 'string' && errorDetails) {
-        errorMsg = errorDetails.substring(0, 200);
-      } else if (typeof errorDetails === 'object' && errorDetails !== null && Object.keys(errorDetails as object).length > 0) {
-        errorMsg = JSON.stringify(errorDetails);
-      } else {
-        errorMsg = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
-      }
+      // Extraire le message d'erreur
+let errorMsg = 'Unknown error';
+
+if (typeof parsedError === 'object' && parsedError !== null) {
+  const pe = parsedError as Record<string, unknown>;
+  if (typeof pe.error === 'object' && pe.error !== null && 'message' in (pe.error as Record<string, unknown>)) {
+    errorMsg = String((pe.error as Record<string, unknown>).message);
+  } else if ('message' in pe) {
+    errorMsg = String(pe.message as unknown as string);
+  }
+} else if (typeof errorDetails === 'string' && errorDetails) {
+  errorMsg = errorDetails.substring(0, 200);
+} else if (typeof errorDetails === 'object' && errorDetails !== null && Object.keys(errorDetails as object).length > 0) {
+  errorMsg = JSON.stringify(errorDetails);
+} else {
+  errorMsg = `HTTP ${uploadResponse.status}: ${uploadResponse.statusText}`;
+}
       
       throw new Error(
         `Upload to Cloudinary failed: ${uploadResponse.status} ${uploadResponse.statusText} - ${errorMsg}`

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/contexts/TranslationContext';
 import { translations } from '@/lib/translations';
+import Image from 'next/image';
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,11 +53,15 @@ export default function Navigation() {
               <h2 style={{ color: 'var(--primary-red)', fontWeight: 700, fontSize: '1.8rem', margin: 0 }}>MarocUp</h2>
             ) : (
               <div style={{ position: 'relative', width: '200px', height: '65px', display: 'flex', alignItems: 'center' }}>
-                <img 
-                  src="/images/marocup-v2.png" 
-                  alt="MarocUp Logo" 
+                <Image
+                  src="/images/marocup-v2.png"
+                  alt="MarocUp Logo"
+                  width={200}
+                  height={60}
                   style={{ objectFit: 'contain', height: '60px', width: 'auto', maxWidth: '200px', display: 'block' }}
                   onError={() => setLogoError(true)}
+                  priority
+                  unoptimized
                 />
               </div>
             )}
