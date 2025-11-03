@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Normaliser le timestamp (mutable)
-    let timestamp: number =
+    const timestamp: number =
       typeof (body as { timestamp?: unknown }).timestamp === 'number'
         ? (body as { timestamp: number }).timestamp
         : parseInt(String((body as { timestamp?: unknown }).timestamp), 10);
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       folder: normalizedFolder,
       resource_type: resource_type || 'raw',
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to generate upload signature' },
       { status: 500 }
