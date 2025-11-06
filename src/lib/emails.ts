@@ -1,17 +1,26 @@
 import { Resend } from 'resend';
 
-// Initialiser Resend avec la clé API
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Fonction pour obtenir l'instance Resend (lazy initialization)
+function getResendInstance() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not defined in environment variables');
+  }
+  return new Resend(apiKey);
+}
 
 // Email de l'administrateur qui recevra les notifications
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@marocup.com';
+function getAdminEmail() {
+  return process.env.ADMIN_EMAIL || 'contact@marocup.com';
+}
 
 // Email d'envoi (doit être vérifié dans Resend)
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@marocup.com';
+function getFromEmail() {
+  return process.env.FROM_EMAIL || 'noreply@marocup.com';
+}
 
 // Mode développement : rediriger tous les emails vers l'admin (pour contourner les restrictions Resend)
 const IS_DEV = process.env.NODE_ENV === 'development';
-const DEV_EMAIL = ADMIN_EMAIL; // En dev, tous les emails vont à l'admin
 
 /**
  * Template email de confirmation pour une candidature startup
@@ -310,14 +319,18 @@ export async function sendStartupConfirmationEmail(data: {
   email: string;
 }) {
   try {
+    const resend = getResendInstance();
+    const adminEmail = getAdminEmail();
+    const fromEmail = getFromEmail();
+    
     // En développement, envoyer à l'admin avec une note dans le sujet
-    const recipientEmail = IS_DEV ? DEV_EMAIL : data.email;
+    const recipientEmail = IS_DEV ? adminEmail : data.email;
     const subject = IS_DEV 
       ? `[DEV] 🚀 Candidature MAROCUP reçue - ${data.startupName} (destinataire original: ${data.email})`
       : `🚀 Candidature MAROCUP reçue - ${data.startupName}`;
     
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: fromEmail,
       to: recipientEmail,
       subject: subject,
       html: getStartupConfirmationEmailHtml(data),
@@ -343,9 +356,13 @@ export async function sendAdminStartupNotificationEmail(data: {
   pitchDescription: string;
 }) {
   try {
+    const resend = getResendInstance();
+    const adminEmail = getAdminEmail();
+    const fromEmail = getFromEmail();
+    
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
+      from: fromEmail,
+      to: adminEmail,
       subject: `🚀 Nouvelle candidature startup : ${data.startupName}`,
       html: getAdminStartupNotificationEmailHtml(data),
     });
@@ -366,14 +383,18 @@ export async function sendAttendeeConfirmationEmail(data: {
   email: string;
 }) {
   try {
+    const resend = getResendInstance();
+    const adminEmail = getAdminEmail();
+    const fromEmail = getFromEmail();
+    
     // En développement, envoyer à l'admin avec une note dans le sujet
-    const recipientEmail = IS_DEV ? DEV_EMAIL : data.email;
+    const recipientEmail = IS_DEV ? adminEmail : data.email;
     const subject = IS_DEV 
       ? `[DEV] 🎉 Inscription MAROCUP confirmée (destinataire original: ${data.email})`
       : '🎉 Inscription MAROCUP confirmée';
     
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: fromEmail,
       to: recipientEmail,
       subject: subject,
       html: getAttendeeConfirmationEmailHtml(data),
@@ -400,9 +421,13 @@ export async function sendAdminAttendeeNotificationEmail(data: {
   raisonParticipation?: string;
 }) {
   try {
+    const resend = getResendInstance();
+    const adminEmail = getAdminEmail();
+    const fromEmail = getFromEmail();
+    
     const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
+      from: fromEmail,
+      to: adminEmail,
       subject: `👤 Nouvelle inscription invité : ${data.nomComplet}`,
       html: getAdminAttendeeNotificationEmailHtml(data),
     });
