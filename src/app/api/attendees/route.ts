@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { sendAttendeeConfirmationEmail, sendAdminAttendeeNotificationEmail } from '@/lib/emails';
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,29 @@ export async function POST(request: NextRequest) {
 
     // Fermer le pool après utilisation
     await pool.end();
+    
+    // Envoyer les emails (ne pas bloquer si ça échoue)
+    try {
+      // Email de confirmation à l'invité
+      await sendAttendeeConfirmationEmail({
+        nomComplet: body.nomComplet,
+        email: body.email,
+      });
+      
+      // Email de notification à l'admin
+      await sendAdminAttendeeNotificationEmail({
+        nomComplet: body.nomComplet,
+        email: body.email,
+        telephone: body.telephone,
+        entreprise: body.entreprise || undefined,
+        poste: body.poste || undefined,
+        secteurActivite: body.secteurActivite || undefined,
+        raisonParticipation: body.raisonParticipation || undefined,
+      });
+    } catch (emailError) {
+      // Logger l'erreur mais ne pas faire échouer la requête
+      console.error('⚠️ Erreur lors de l\'envoi des emails (invité):', emailError);
+    }
     
     return NextResponse.json({ success: true, id: result.rows[0].id });
   } catch (error: unknown) {

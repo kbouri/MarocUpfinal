@@ -12,12 +12,12 @@ export default function InfoPage() {
   const sponsors = [
     { name: 'Chari', image: '/images/partners/chari.png' },
     { name: 'TaptapSend', image: '/images/partners/taptapsend.jpeg' },
-    { name: 'Intelcia', image: '/images/partners/intelcia.png.jpg' },
+    { name: 'Glovo', image: '/images/partners/GlovoLarge_IXRIeOz.svg' },
     { name: 'UM6P', image: '/images/partners/um6p.png' },
+    { name: 'Next Jeel', image: '/images/partners/logonextjeelnew  copie.jpeg' },
     { name: 'Tech Bridge Africa', image: '/images/partners/tech_bridge_africa_logo.jpeg' },
+    { name: 'Gesmtone Ventures', image: '/images/partners/gesmtonevc.png' },
     { name: '212 Founders', image: '/images/partners/212-founders.png' },
-    { name: 'Nest Accelerator', image: '/images/partners/nest-accelerator.png.jpg' },
-    { name: 'MFounders', image: '/images/partners/mfounders.png.webp' },
   ];
 
   const partners = [
@@ -107,7 +107,7 @@ export default function InfoPage() {
             {/* Ligne 1 Sponsors */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               {sponsors.slice(0, 4).map((sponsor, index) => (
-                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #C8102E', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '8px' }}>
+                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #c1272d', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '12px' }}>
                   <Image
                     src={sponsor.image}
                     alt={sponsor.name}
@@ -122,7 +122,7 @@ export default function InfoPage() {
             {/* Ligne 2 Sponsors */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               {sponsors.slice(4, 8).map((sponsor, index) => (
-                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #C8102E', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '8px' }}>
+                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #c1272d', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '12px' }}>
                   <Image
                     src={sponsor.image}
                     alt={sponsor.name}
@@ -147,7 +147,7 @@ export default function InfoPage() {
             {/* Ligne 1 Partenaires */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               {partners.slice(0, 4).map((partner, index) => (
-                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px' }}>
+                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #006233', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '12px' }}>
                   <Image
                     src={partner.image}
                     alt={partner.name}
@@ -162,7 +162,7 @@ export default function InfoPage() {
             {/* Ligne 2 Partenaires */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               {partners.slice(4, 8).map((partner, index) => (
-                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px' }}>
+                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #006233', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '12px' }}>
                   <Image
                     src={partner.image}
                     alt={partner.name}
@@ -177,7 +177,7 @@ export default function InfoPage() {
             {/* Ligne 3 Partenaires */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
               {partners.slice(8, 12).map((partner, index) => (
-                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px' }}>
+                <div key={index} style={{ width: '150px', height: '100px', border: '2px solid #006233', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', margin: '10px', borderRadius: '12px' }}>
                   <Image
                     src={partner.image}
                     alt={partner.name}

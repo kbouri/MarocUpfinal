@@ -43,13 +43,20 @@ export default function AboutPage() {
                 marginBottom: '1rem',
                 flexWrap: 'wrap'
               }}>
-                <Image
-                  src="/images/Next Jeel logo.jpeg"
-                  alt="Next Jeel"
-                  width={300}
-                  height={75}
-                  style={{ objectFit: 'contain' }}
-                />
+                <a 
+                  href="https://linktr.ee/nextjeel_?utm_source=linktree_profile_share&ltsid=27fc7101-7170-4df2-8766-8a56425eb23d" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-block', cursor: 'pointer' }}
+                >
+                  <Image
+                    src="/images/logonextjeelnew .jpeg"
+                    alt="Next Jeel"
+                    width={240}
+                    height={60}
+                    style={{ objectFit: 'contain' }}
+                  />
+                </a>
                 <Image
                   src="/images/Tech Bridge logo.jpeg"
                   alt="Tech Bridge Africa"
@@ -62,7 +69,13 @@ export default function AboutPage() {
             <div className="mission-image">
               <div className="team-grid">
                 {/* Top Row: Karim and Mohamed */}
-                <div className="team-member" style={{ gridColumn: 1, gridRow: 1 }}>
+                <a 
+                  href="https://www.linkedin.com/in/karim-bouri-7a570824a/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="team-member" 
+                  style={{ gridColumn: 1, gridRow: 1, textDecoration: 'none', cursor: 'pointer' }}
+                >
                   <div className="member-photo">
                     <Image
                       src="/images/team/karim-bouri.jpg"
@@ -78,13 +91,19 @@ export default function AboutPage() {
                       <p className="member-school">X-HEC Entrepreneur</p>
                       <p className="member-school">ENSAE-HEC Paris</p>
                     </div>
-                    <a href="https://www.linkedin.com/in/karim-bouri-7a570824a/" target="_blank" className="member-linkedin">
+                    <div className="member-linkedin">
                       <i className="fab fa-linkedin"></i>
-                    </a>
+                    </div>
                   </div>
-                </div>
+                </a>
                 
-                <div className="team-member" style={{ gridColumn: 2, gridRow: 1 }}>
+                <a 
+                  href="https://www.linkedin.com/in/mohamed-afeilal/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="team-member" 
+                  style={{ gridColumn: 2, gridRow: 1, textDecoration: 'none', cursor: 'pointer' }}
+                >
                   <div className="member-photo">
                     <Image
                       src="/images/team/mohamed-afeilal.jpg"
@@ -97,14 +116,20 @@ export default function AboutPage() {
                   <div className="member-info">
                     <h4>Mohamed AFEILAL</h4>
                     <p className="member-school">ESSEC Business</p>
-                    <a href="https://www.linkedin.com/in/mohamed-afeilal/" target="_blank" className="member-linkedin">
+                    <div className="member-linkedin">
                       <i className="fab fa-linkedin"></i>
-                    </a>
+                    </div>
                   </div>
-                </div>
+                </a>
                 
                 {/* Bottom Row: Yasmine and Paul */}
-                <div className="team-member" style={{ gridColumn: 1, gridRow: 2 }}>
+                <a 
+                  href="https://www.linkedin.com/in/yasmine-bouri/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="team-member" 
+                  style={{ gridColumn: 1, gridRow: 2, textDecoration: 'none', cursor: 'pointer' }}
+                >
                   <div className="member-photo">
                     <Image
                       src="/images/team/Yasmine Bouri.jpg"
@@ -118,15 +143,21 @@ export default function AboutPage() {
                     <h4>Yasmine BOURI</h4>
                     <div className="member-schools">
                       <p className="member-school">Ex Imperial College</p>
-                      <p className="member-school">& Next Jeel Founder</p>
+                      <p className="member-school">& NextJeel Founder</p>
                     </div>
-                    <a href="https://www.linkedin.com/in/yasmine-bouri/" target="_blank" className="member-linkedin">
+                    <div className="member-linkedin">
                       <i className="fab fa-linkedin"></i>
-                    </a>
+                    </div>
                   </div>
-                </div>
+                </a>
                 
-                <div className="team-member" style={{ gridColumn: 2, gridRow: 2 }}>
+                <a 
+                  href="https://www.linkedin.com/in/paul-mathieu-foata-26a884280/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="team-member" 
+                  style={{ gridColumn: 2, gridRow: 2, textDecoration: 'none', cursor: 'pointer' }}
+                >
                   <div className="member-photo">
                     <Image
                       src="/images/team/paul-mathieu-foata.jpg"
@@ -139,11 +170,11 @@ export default function AboutPage() {
                   <div className="member-info">
                     <h4>Paul Mathieu<br/>FOATA</h4>
                     <p className="member-school">ESSEC Business</p>
-                    <a href="https://www.linkedin.com/in/paul-mathieu-foata-26a884280/" target="_blank" className="member-linkedin">
+                    <div className="member-linkedin">
                       <i className="fab fa-linkedin"></i>
-                    </a>
+                    </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </div>

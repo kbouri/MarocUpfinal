@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { sendStartupConfirmationEmail, sendAdminStartupNotificationEmail } from '@/lib/emails';
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,6 +55,29 @@ export async function POST(request: NextRequest) {
 
     // Fermer le pool après utilisation
     await pool.end();
+    
+    // Envoyer les emails (ne pas bloquer si ça échoue)
+    try {
+      // Email de confirmation au candidat
+      await sendStartupConfirmationEmail({
+        startupName: body.nom_startup,
+        founders: body.nom_fondateurs,
+        email: body.email,
+      });
+      
+      // Email de notification à l'admin
+      await sendAdminStartupNotificationEmail({
+        startupName: body.nom_startup,
+        founders: body.nom_fondateurs,
+        email: body.email,
+        sector: body.secteur,
+        country: body.pays_residence,
+        pitchDescription: body.pitch_court,
+      });
+    } catch (emailError) {
+      // Logger l'erreur mais ne pas faire échouer la requête
+      console.error('⚠️ Erreur lors de l\'envoi des emails (startup):', emailError);
+    }
     
     return NextResponse.json({ success: true, id: result.rows[0].id });
   } catch (error: unknown) {
