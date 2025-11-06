@@ -108,14 +108,14 @@ export default function AboutPage() {
                   <div className="member-photo">
                     <Image
                       src="/images/team/Yasmine Bouri.jpg"
-                      alt="Yasmine Bouri"
+                      alt="Yasmine BOURI"
                       width={100}
                       height={100}
                       style={{ objectFit: 'cover' }}
                     />
                   </div>
                   <div className="member-info">
-                    <h4>Yasmine Bouri</h4>
+                    <h4>Yasmine BOURI</h4>
                     <div className="member-schools">
                       <p className="member-school">Ex Imperial College</p>
                       <p className="member-school">& Next Jeel Founder</p>
